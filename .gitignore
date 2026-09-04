@@ -6,7 +6,6 @@ dist/
 .DS_Store
 *.pem
 *.key
-convex/_generated/
 *.tsbuildinfo
 .vite/
 .agents/
