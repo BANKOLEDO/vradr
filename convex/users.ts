@@ -1,4 +1,5 @@
 import { query, mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { QueryCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
@@ -75,13 +76,21 @@ export const createProfile = mutation({
       return existing._id;
     }
 
-    return await ctx.db.insert("users", {
+    const id = await ctx.db.insert("users", {
       userId: subjectRowId(userId),
       email,
       country: args.country,
       name: args.name,
       createdAt: new Date().toISOString(),
     });
+    if (email) {
+      await ctx.scheduler.runAfter(0, internal.notify.welcomeUser, {
+        email,
+        name: args.name,
+        country: args.country,
+      });
+    }
+    return id;
   },
 });
 

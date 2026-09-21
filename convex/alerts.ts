@@ -41,6 +41,27 @@ export const markAllRead = mutation({
   },
 });
 
+export const clearWatchAlerts = mutation({
+  args: { country: v.string(), visaType: v.string() },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const rows = await ctx.db
+      .query("alerts")
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
+      .collect();
+    let n = 0;
+    for (const r of rows) {
+      if (r.type === "watch" && r.message.includes(args.country) && r.message.includes(args.visaType)) {
+        await ctx.db.delete(r._id);
+        n++;
+      }
+    }
+    return n;
+  },
+});
+
 export const create = mutation({
   args: {
     type: v.string(),
