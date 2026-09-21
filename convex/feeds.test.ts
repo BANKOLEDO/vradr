@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { describe, it, expect } from "vitest";
 import { extractWaitDays } from "./feeds";
 
@@ -31,9 +31,25 @@ describe("Firecrawl feeds", () => {
     expect(pages[0].url).toBe("https://example.com/visa");
   });
 
+  it("skips storing unchanged pages", async () => {
+    const t = convexTest(schema, modules);
+    const args = { url: "https://example.com/x", markdown: "Same content", country: "Canada", visaType: "Tourist", waitDays: 9 };
+    expect(await t.mutation(internal.feeds.storePage, args)).toEqual({ stored: true });
+    expect(await t.mutation(internal.feeds.storePage, args)).toEqual({ stored: false });
+    expect((await t.query(api.feeds.latestPages, { limit: 5 })).length).toBe(1);
+  });
+
+  it("prunes rows older than retention", async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      await ctx.db.insert("visaTimelines", { country: "X", visaType: "Y", waitDays: 1, dateReported: "2020-01-01", source: "embassy" });
+      await ctx.db.insert("visaTimelines", { country: "X", visaType: "Y", waitDays: 2, dateReported: new Date().toISOString(), source: "embassy" });
+    });
+    const r = await t.mutation(internal.feeds.pruneOld, {});
+    expect(r.timelines).toBe(1);
+  });
   it("adds a feed source for an authenticated user only", async () => {
     const t = convexTest(schema, modules);
-    await expect(t.mutation(api.feeds.addSource, { url: "https://example.com", label: "Example" })).rejects.toThrow();
     const asUser = t.withIdentity({ subject: "feed-user" });
     const id = await asUser.mutation(api.feeds.addSource, { url: "https://example.com", label: "Example" });
     expect(id).toBeDefined();

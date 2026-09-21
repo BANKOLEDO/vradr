@@ -1,11 +1,11 @@
 import { action, internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import { recordTimeline } from "./cronActions";
 
 const FIRECRAWL_API = "https://api.firecrawl.dev/v2";
 
-export function extractWaitDays(content: string): number | null {
-  const patterns = [
+export function extractWaitDays(content: string): number | null {  const patterns = [
     /(\d+)\s*(?:to|–|-)\s*(\d+)\s*days?/i,
     /(\d+)\s*(?:business\s*)?days?\s*(?:to\s*(?:process|receive|get))/i,
     /processing\s*(?:time|takes?)\s*[:\-]?\s*(\d+)\s*days?/i,
@@ -30,7 +30,11 @@ async function scrapeUrl(url: string, apiKey: string): Promise<{ title?: string;
   });
   if (!res.ok) throw new Error(`Firecrawl ${res.status}`);
   const data = await res.json();
-  return { title: data.data?.metadata?.title, markdown: data.data?.markdown ?? "" };
+  if (data.success === false) throw new Error(`Firecrawl: ${data.error ?? "scrape failed"}`);
+  const rawTitle = data.data?.metadata?.title;
+  const title = Array.isArray(rawTitle) ? rawTitle[0] : rawTitle;
+  const markdown = typeof data.data?.markdown === "string" ? data.data.markdown : "";
+  return { title: typeof title === "string" ? title : undefined, markdown };
 }
 
 // Needs FIRECRAWL_API_KEY.
@@ -63,6 +67,14 @@ export const activeSources = internalQuery({
   },
 });
 
+export function contentHash(content: string): string {
+  let h = 5381;
+  for (let i = 0; i < content.length; i++) {
+    h = ((h << 5) + h + content.charCodeAt(i)) >>> 0;
+  }
+  return h.toString(16);
+}
+
 export const storePage = internalMutation({
   args: {
     url: v.string(),
@@ -72,25 +84,54 @@ export const storePage = internalMutation({
     visaType: v.optional(v.string()),
     waitDays: v.optional(v.number()),
   },
-  returns: v.null(),
+  returns: v.object({ stored: v.boolean() }),
   handler: async (ctx, args) => {
+    const hash = contentHash(args.markdown);
+    const latest = await ctx.db
+      .query("scrapedPages")
+      .withIndex("by_url", (q) => q.eq("url", args.url))
+      .order("desc")
+      .take(1);
+    if (latest[0]?.hash === hash) return { stored: false };
     await ctx.db.insert("scrapedPages", {
       url: args.url,
       title: args.title,
       markdown: args.markdown.slice(0, 8000),
+      hash,
       source: "firecrawl",
       scrapedAt: new Date().toISOString(),
     });
     if (args.country && args.visaType && args.waitDays !== undefined) {
-      await ctx.db.insert("visaTimelines", {
+      await recordTimeline(ctx, {
         country: args.country,
         visaType: args.visaType,
         waitDays: args.waitDays,
-        dateReported: new Date().toISOString(),
         source: `firecrawl:${args.url}`,
       });
     }
-    return null;
+    return { stored: true };
+  },
+});
+
+// Drop rows older than the retention window so tables stay small.
+export const pruneOld = internalMutation({
+  args: {},
+  returns: v.object({ timelines: v.number(), pages: v.number() }),
+  handler: async (ctx) => {
+    const cutoff = new Date(Date.now() - 180 * 86400000).toISOString();
+    let timelines = 0;
+    let pages = 0;
+    for (const row of await ctx.db.query("visaTimelines").order("asc").take(500)) {
+      if (row.dateReported >= cutoff) break;
+      await ctx.db.delete(row._id);
+      timelines++;
+    }
+    for (const row of await ctx.db.query("scrapedPages").order("asc").take(500)) {
+      if (row.scrapedAt >= cutoff) break;
+      await ctx.db.delete(row._id);
+      pages++;
+    }
+    return { timelines, pages };
   },
 });
 
@@ -118,6 +159,7 @@ export const runFeeds = internalAction({
         // Next run retries.
       }
     }
+    await ctx.runMutation(internal.feeds.pruneOld, {});
     return null;
   },
 });

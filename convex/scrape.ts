@@ -27,7 +27,8 @@ async function scrapeEmbassy(url: string, apiKey: string) {
 
   if (!res.ok) throw new Error(`Firecrawl error: ${res.status}`);
   const data = await res.json();
-  return data.data?.markdown ?? "";
+  if (data.success === false) throw new Error(`Firecrawl: ${data.error ?? "scrape failed"}`);
+  return typeof data.data?.markdown === "string" ? data.data.markdown : "";
 }
 
 // Parse wait time from scraped markdown content
