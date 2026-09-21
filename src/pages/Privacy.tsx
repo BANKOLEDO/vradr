@@ -7,17 +7,17 @@ export default function Privacy() {
       <Navbar variant="docs" />
       <div className="shell" style={{ padding: "100px 24px 80px", maxWidth: 720 }}>
         <h1 className="heading-lg" style={{ marginBottom: 8 }}>Privacy Policy</h1>
-        <p className="micro" style={{ marginBottom: 32 }}>Last updated: August 26, 2026</p>
+          <p className="micro" style={{ marginBottom: 32 }}>Last updated: September 4, 2026</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>1. Information We Collect</h2>
-            <p className="body">We collect your email address, country of residence, and visa application data you choose to track. We also collect usage analytics to improve the Service.</p>
+            <p className="body">We collect your email address, country of residence, and the applications, watchlists, and reminders you choose to track. SOP drafts you save stay only on your own device, never on our servers.</p>
           </section>
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>2. How We Use Information</h2>
-            <p className="body">Your information is used to provide personalized visa tracking, processing time predictions, and alerts. We do not sell your personal information to third parties.</p>
+            <p className="body">Your information is used to provide personalized visa tracking, processing time predictions, and alerts, including emails to your registered address. Text you submit for AI scoring or drafting is processed to generate a result and is not stored. We do not sell your personal information to third parties.</p>
           </section>
 
           <section>
@@ -32,12 +32,12 @@ export default function Privacy() {
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>5. Cookies</h2>
-            <p className="body">We use essential cookies for authentication and session management. Analytics cookies may be used to understand usage patterns.</p>
+            <p className="body">Sign-in sessions are kept in your browser's local storage. We do not use advertising or analytics cookies.</p>
           </section>
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>6. Your Rights</h2>
-            <p className="body">You can access, update, or delete your account data at any time through the dashboard settings. For additional requests, contact support@vradr.com.</p>
+            <p className="body">You can access, update, or delete your account data at any time through the dashboard settings. Clearing your browser data removes device-only drafts.</p>
           </section>
 
           <section>

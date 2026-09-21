@@ -7,7 +7,7 @@ export default function Terms() {
       <Navbar variant="docs" />
       <div className="shell" style={{ padding: "100px 24px 80px", maxWidth: 720 }}>
         <h1 className="heading-lg" style={{ marginBottom: 8 }}>Terms of Service</h1>
-        <p className="micro" style={{ marginBottom: 32 }}>Last updated: August 26, 2026</p>
+          <p className="micro" style={{ marginBottom: 32 }}>Last updated: September 4, 2026</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           <section>
@@ -17,7 +17,7 @@ export default function Terms() {
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>2. Description of Service</h2>
-            <p className="body">VRADR provides visa processing time data, trend analysis, and application tracking tools. Data is gathered from embassy websites and verified applicant reports. Processing times are estimates and not guarantees.</p>
+            <p className="body">VRADR provides visa processing time data, trend analysis, application tracking, document drafting help, interview practice, and email alerts. Data is gathered from embassy websites through automated scraping. Processing times are estimates and not guarantees.</p>
           </section>
 
           <section>
@@ -32,7 +32,7 @@ export default function Terms() {
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>5. Data Accuracy</h2>
-            <p className="body">While we strive for accuracy, processing times and visa requirements may change without notice. Always verify information with the relevant embassy or consulate before making decisions.</p>
+            <p className="body">While we strive for accuracy, processing times and visa requirements may change without notice. AI-generated content (predictions, drafts, scores) can be wrong. Always verify information with the relevant embassy or consulate before making decisions.</p>
           </section>
 
           <section>
@@ -47,7 +47,7 @@ export default function Terms() {
 
           <section>
             <h2 className="heading" style={{ marginBottom: 8 }}>8. Contact</h2>
-            <p className="body">For questions about these Terms, contact us through the application or email support@vradr.com.</p>
+            <p className="body">For questions about these Terms, reply to any email we send you from your registered address.</p>
           </section>
         </div>
 
