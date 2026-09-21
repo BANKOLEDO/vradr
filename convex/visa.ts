@@ -81,11 +81,15 @@ export const search = query({
   handler: async (ctx, args) => {
     const q = args.query.toLowerCase();
     const all = await ctx.db.query("visaTimelines").collect();
-    return all.filter(
-      (e) =>
-        e.country.toLowerCase().includes(q) ||
-        e.visaType.toLowerCase().includes(q),
-    );
+    // One latest record per (country, visaType), not every history row.
+    const latest = new Map<string, (typeof all)[number]>();
+    for (const e of all) {
+      if (!e.country.toLowerCase().includes(q) && !e.visaType.toLowerCase().includes(q)) continue;
+      const key = `${e.country}::${e.visaType}`;
+      const cur = latest.get(key);
+      if (!cur || e.dateReported > cur.dateReported) latest.set(key, e);
+    }
+    return [...latest.values()].sort((a, b) => a.waitDays - b.waitDays);
   },
 });
 

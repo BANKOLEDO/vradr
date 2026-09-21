@@ -35,4 +35,15 @@ describe("visa type stats", () => {
     expect(avgs["Canada"]).toBe(10);
     expect(await t.query(api.visa.getTypeAverages, { types: [] })).toEqual({});
   });
+
+  it("returns one row per visa instead of history rows", async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      await ctx.db.insert("visaTimelines", { country: "United States", visaType: "B1/B2", waitDays: 30, dateReported: "2026-01-01", source: "embassy" });
+      await ctx.db.insert("visaTimelines", { country: "United States", visaType: "B1/B2", waitDays: 28, dateReported: "2026-02-01", source: "embassy" });
+    });
+    const rows = await t.query(api.visa.search, { query: "b1" });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].waitDays).toBe(28);
+  });
 });
