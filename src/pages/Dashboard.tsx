@@ -21,7 +21,6 @@ import {
   ChartBarIcon,
   CheckCircleIcon,
   Cog6ToothIcon,
-  EnvelopeIcon,
   GlobeAltIcon,
   HeartIcon,
   KeyIcon,
@@ -49,6 +48,7 @@ const VISA_TYPES = [
   { id: "H-1B", icon: BriefcaseIcon },
   { id: "L-1", icon: BriefcaseIcon },
   { id: "O-1", icon: BriefcaseIcon },
+  { id: "AEWV", icon: BriefcaseIcon },
   { id: "Student", icon: AcademicCapIcon },
   { id: "F-1", icon: AcademicCapIcon },
   { id: "J-1", icon: AcademicCapIcon },
@@ -59,7 +59,7 @@ const VISA_TYPES = [
 
 const VISA_GROUPS = [
   { id: "Travel", icon: MapPinIcon, types: ["Tourist", "B1", "B2", "B1/B2"] },
-  { id: "Work", icon: BriefcaseIcon, types: ["Work", "H-1B", "L-1", "O-1"] },
+  { id: "Work", icon: BriefcaseIcon, types: ["Work", "H-1B", "L-1", "O-1", "AEWV"] },
   { id: "Study", icon: AcademicCapIcon, types: ["Student", "F-1", "J-1"] },
   { id: "Business", icon: BuildingLibraryIcon, types: ["Business"] },
   { id: "Transit", icon: PaperAirplaneIcon, types: ["Transit"] },
@@ -83,8 +83,21 @@ const COUNTRIES: { name: string; code: string }[] = [
   { name: "Poland", code: "PL" },
 ];
 
-const ORIGIN_COUNTRIES: { name: string; code: string }[] = [
-  { name: "Nigeria", code: "NG" }, { name: "India", code: "IN" },
+// Full destination list for forms. The browse grid stays on tracked countries.
+const DESTINATIONS: { name: string; code: string }[] = [
+  ...COUNTRIES,
+  { name: "Netherlands", code: "NL" }, { name: "Ireland", code: "IE" },
+  { name: "Italy", code: "IT" }, { name: "Sweden", code: "SE" },
+  { name: "Norway", code: "NO" }, { name: "Switzerland", code: "CH" },
+  { name: "Belgium", code: "BE" }, { name: "Austria", code: "AT" },
+  { name: "Portugal", code: "PT" }, { name: "Greece", code: "GR" },
+  { name: "Turkey", code: "TR" }, { name: "China", code: "CN" },
+  { name: "Malaysia", code: "MY" }, { name: "Singapore", code: "SG" },
+  { name: "New Zealand", code: "NZ" }, { name: "Mexico", code: "MX" },
+  { name: "South Africa", code: "ZA" }, { name: "Kenya", code: "KE" },
+];
+
+const ORIGIN_COUNTRIES: { name: string; code: string }[] = [  { name: "Nigeria", code: "NG" }, { name: "India", code: "IN" },
   { name: "Philippines", code: "PH" }, { name: "Pakistan", code: "PK" },
   { name: "Bangladesh", code: "BD" }, { name: "Kenya", code: "KE" },
   { name: "Ghana", code: "GH" }, { name: "Egypt", code: "EG" },
@@ -104,7 +117,7 @@ const VISA_ICONS: Record<string, typeof MapPinIcon> = {
   Tourist: MapPinIcon, Work: BriefcaseIcon, Student: AcademicCapIcon,
   Business: BuildingLibraryIcon, Transit: PaperAirplaneIcon, Family: UsersIcon,
   B1: BuildingLibraryIcon, B2: MapPinIcon, "B1/B2": MapPinIcon,
-  "H-1B": BriefcaseIcon, "L-1": BriefcaseIcon, "O-1": BriefcaseIcon,
+  "H-1B": BriefcaseIcon, "L-1": BriefcaseIcon, "O-1": BriefcaseIcon, "AEWV": BriefcaseIcon,
   "F-1": AcademicCapIcon, "J-1": AcademicCapIcon,
 };
 
@@ -131,6 +144,7 @@ const DOC_CHECKLISTS: Record<string, string[]> = {
   "H-1B": ["Valid passport", "Approved I-129 petition (I-797 notice)", "Labor Condition Application (LCA)", "Job offer in a specialty occupation", "Degree + transcripts / credential evaluation", "Resume/CV", "Employer support letter"],
   "L-1": ["Valid passport", "Approved I-129 petition (I-797 notice)", "Proof of 1-year employment abroad", "Org chart + qualifying relationship", "Pay stubs / employment letter", "Resume/CV"],
   "O-1": ["Valid passport", "Approved I-129 petition (O classification)", "Evidence of extraordinary ability (awards, press, publications)", "Advisory opinion letter", "Contract / itinerary of events", "Resume/CV"],
+  AEWV: ["Valid passport", "Job offer from an INZ-accredited employer", "Signed employment agreement (pay, hours)", "NZQA-recognised qualification or experience proof", "IELTS (most roles)", "Medical exam + police certificate", "Bank statements (settlement funds)"],
   "F-1": ["Valid passport (6+ months)", "Form I-20 from SEVP school", "SEVIS fee receipt", "DS-160 confirmation", "Financial proof (tuition + living)", "Academic transcripts", "Ties to home country"],
   "J-1": ["Valid passport (6+ months)", "Form DS-2019", "SEVIS fee receipt", "DS-160 confirmation", "Program sponsor letter", "Financial proof", "Two-year home residency note (if applicable)"],
 };
@@ -142,6 +156,7 @@ const VISA_GUIDE: Record<string, { who: string; steps: string[]; qualifies: stri
   "H-1B": { who: "Specialty-occupation work for a US employer sponsor. Lottery + petition.", steps: ["Get a US job offer", "Employer files LCA", "Employer files I-129 petition", "Consular interview with I-797", "Enter and start work"], qualifies: ["Bachelor's+ in a related field", "Employer willing to sponsor", "Role is a specialty occupation"] },
   "L-1": { who: "Intra-company transfer for managers or specialized staff.", steps: ["1 year with the company abroad", "Employer files I-129", "Consular interview", "Enter and start role"], qualifies: ["Manager/executive or specialist", "Qualifying company relationship", "1-year continuous employment"] },
   "O-1": { who: "Extraordinary ability in sciences, arts, sports, or business.", steps: ["Gather ability evidence", "Get advisory opinion", "Employer files I-129", "Consular interview"], qualifies: ["Awards, press, or top salary proof", "Sustained acclaim", "US work lined up"] },
+  AEWV: { who: "New Zealand work via an accredited employer. Green List roles fast-track residence.", steps: ["Verify employer accreditation", "Check Green List tier for your role", "Employer passes the Job Check", "File migrant check with IELTS, medical, police", "Land, sort IRD, bank, GP in week one"], qualifies: ["Accredited job offer", "Median wage met", "Role requirements (registration/IQA)"] },
   "F-1": { who: "Full-time study at a US school. Work limited to campus/OPT.", steps: ["Get accepted + I-20", "Pay SEVIS fee", "Fill DS-160", "Interview with funds proof", "Enter before program start"], qualifies: ["SEVP-school acceptance", "Funds for tuition + living", "Non-immigrant intent"] },
   "J-1": { who: "Exchange programs: scholars, interns, au pairs, trainees.", steps: ["Get DS-2019 from sponsor", "Pay SEVIS fee", "Fill DS-160", "Interview", "Enter on program dates"], qualifies: ["Approved sponsor program", "Funds + insurance", "Check 2-year home rule"] },
   Tourist: { who: "Short leisure visits. Rules vary by country.", steps: ["Check entry rules", "Prepare funds + itinerary proof", "Apply or enter visa-free", "Travel"], qualifies: ["Valid passport", "Trip funds", "Return ticket"] },
@@ -180,7 +195,7 @@ function riskLevel(days: number) {
   return { label: "Slow", cls: "risk-slow", color: "#dc2626", bg: "rgba(220,38,38,0.28)" };
 }
 
-type Tab = "search" | "my" | "tools" | "inbox";
+type Tab = "search" | "my" | "tools" | "prep";
 
 const DESTINATION_MAP: Record<string, string[]> = {
   NG: ["United States", "United Kingdom", "Canada", "Germany"],
@@ -243,7 +258,7 @@ export default function Dashboard() {
   const [compareVisaType, setCompareVisaType] = useState("");
   const [showAddApp, setShowAddApp] = useState(false);
   const [newApp, setNewApp] = useState({ country: "", visaType: "Tourist", applicationDate: new Date().toISOString().split("T")[0] });
-  const [toolTab, setToolTab] = useState<"compare" | "intelligence" | "hub">("compare");
+  const [toolTab, setToolTab] = useState<"compare" | "intelligence" | "hub" | "feeds">("compare");
   const [showSettings, setShowSettings] = useState(false);
   const [settingsMenu, setSettingsMenu] = useState<"profile" | "export" | "delete" | null>(null);
 
@@ -308,6 +323,7 @@ export default function Dashboard() {
   const updateAppStatus = useMutation(api.applications.updateStatus);
   const markAlertRead = useMutation(api.alerts.markRead);
   const markAllAlertsRead = useMutation(api.alerts.markAllRead);
+  const clearWatchAlerts = useMutation(api.alerts.clearWatchAlerts);
   const addWatch = useMutation(api.watchlist.add);
   const removeWatch = useMutation(api.watchlist.remove);
   const createAlert = useMutation(api.alerts.create);
@@ -327,6 +343,7 @@ export default function Dashboard() {
     );
     if (existing) {
       await removeWatch({ id: existing._id });
+      await clearWatchAlerts({ country, visaType });
     } else {
       await addWatch({ country, visaType });
       await createAlert({
@@ -337,6 +354,7 @@ export default function Dashboard() {
   };
 
   const appCount = myApps?.length ?? 0;
+  const unreadCount = (myAlerts ?? []).filter((a: any) => !a.read).length;
 
   return (
     <div className="dash-wrap">
@@ -376,15 +394,15 @@ export default function Dashboard() {
             {tab === "search" && (country ? <GlobeAltIcon width={13} height={13} /> : <MagnifyingGlassIcon width={13} height={13} />)}
             {tab === "my" && <BellIcon width={13} height={13} />}
             {tab === "tools" && <ChartBarIcon width={13} height={13} />}
-            {tab === "inbox" && <EnvelopeIcon width={13} height={13} />}
-            {tab === "search" ? (country ? "Country deep dive" : "Live embassy data") : tab === "my" ? "Your portfolio" : tab === "inbox" ? "Mail + feeds" : "Power user tools"}
+            {tab === "prep" && <AcademicCapIcon width={13} height={13} />}
+            {tab === "search" ? (country ? "Country deep dive" : "Live embassy data") : tab === "my" ? "Your portfolio" : tab === "prep" ? "Get ready" : "Power user tools"}
           </div>
           <h1 className="dash-hero-title">
-            {tab === "search" && !country && (myCountry ? <>Visas from <span className="dash-hero-accent">{myCountry}</span></> : "Visa Wait Times")}
+            {tab === "search" && !country && (myCountry ? <>Leaving <span className="dash-hero-accent">{myCountry}</span></> : "Visa Wait Times")}
             {tab === "search" && country && <>{country} <span className="dash-hero-accent">visas</span></>}
             {tab === "my" && "Your Applications"}
             {tab === "tools" && "Tools"}
-            {tab === "inbox" && "Inbox"}
+            {tab === "prep" && "Prep"}
           </h1>
           {tab === "search" && !country && !myCountry && (
             <p className="dash-hero-sub">Pick a country below to see live embassy wait times. Sign up with your country for a personalized view.</p>
@@ -398,8 +416,8 @@ export default function Dashboard() {
           {tab === "tools" && (
             <p className="dash-hero-sub">Compare countries, scan intelligence, and organize your documents.</p>
           )}
-          {tab === "inbox" && (
-            <p className="dash-hero-sub">App inbox powered by AgentMail, fed by Firecrawl scrapes.</p>
+          {tab === "prep" && (
+            <p className="dash-hero-sub">SOPs, mock interviews, opportunities, and roadmaps.</p>
           )}
         </div>
 
@@ -407,9 +425,9 @@ export default function Dashboard() {
         <div className="dash-tabs">
           {([
             { id: "search" as Tab, label: "Search", icon: MagnifyingGlassIcon },
-            { id: "my" as Tab, label: "My Apps", icon: BriefcaseIcon, badge: appCount },
+            { id: "my" as Tab, label: "My Apps", icon: BriefcaseIcon, badge: appCount, alertBadge: unreadCount },
             { id: "tools" as Tab, label: "Tools", icon: ChartBarIcon },
-            { id: "inbox" as Tab, label: "Inbox", icon: EnvelopeIcon },
+            { id: "prep" as Tab, label: "Prep", icon: AcademicCapIcon },
           ]).map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)} className={`dash-tab ${tab === t.id ? "dash-tab-active" : ""}`}>
               <t.icon width={15} height={15} />
@@ -467,7 +485,7 @@ export default function Dashboard() {
                   <div className="dash-answer-row">
                     <Flag code={COUNTRIES.find((c) => c.name === fastest.country)?.code ?? "us"} className="dash-answer-flag" />
                     <div className="dash-answer-text">
-                      <span className="dash-answer-label">Fastest from {myCountry} right now</span>
+                      <span className="dash-answer-label">Fastest way out of {myCountry} right now</span>
                       <div className="dash-answer-line">
                         <span className="dash-answer-country">{fastest.country}</span>
                         <span className="dash-answer-type">{fastest.visaType} visa</span>
@@ -535,7 +553,9 @@ export default function Dashboard() {
                 <span className="dash-browse-count">{COUNTRIES.length} countries</span>
               </div>
               <div className="dash-countries-grid">
-                {(myCountry ? restCards : COUNTRIES).map((c) => {
+                {!countryAverages ? (
+                  [0, 1, 2, 3].map((i) => <div key={i} className="dash-country-card dash-skel" />)
+                ) : (myCountry ? restCards : COUNTRIES).map((c) => {
                   const watched = watchedSet.has(watchingKey(c.name, "Tourist"));
                   const risk = riskLevel(cardAvg(c.name));
                   return (
@@ -608,8 +628,8 @@ export default function Dashboard() {
           />
         )}
 
-        {/* INBOX TAB */}
-        {tab === "inbox" && <InboxTab />}
+        {/* PREP TAB */}
+        {tab === "prep" && <PrepTab />}
       </div>
 
       {/* Mobile bottom nav */}
@@ -617,9 +637,9 @@ export default function Dashboard() {
         <div className="dash-bottomnav-inner">
           {([
             { id: "search" as Tab, label: "Search", icon: MagnifyingGlassIcon },
-            { id: "my" as Tab, label: "My Apps", icon: BriefcaseIcon, badge: appCount },
+            { id: "my" as Tab, label: "My Apps", icon: BriefcaseIcon, badge: appCount, alertBadge: unreadCount },
             { id: "tools" as Tab, label: "Tools", icon: ChartBarIcon },
-            { id: "inbox" as Tab, label: "Inbox", icon: EnvelopeIcon },
+            { id: "prep" as Tab, label: "Prep", icon: AcademicCapIcon },
           ]).map((t) => (
             <button
               key={t.id}
@@ -839,6 +859,16 @@ function CountryDetail({ country, data, onBack, watchedSet, watchingKey, toggleW
     return acc;
   }, new Map<string, any>());
   const latest = [...visaTypes.values()];
+  const fastestType = [...latest].sort((a: any, b: any) => a.waitDays - b.waitDays)[0];
+  const updatedAt = latest.map((r: any) => r.dateReported).sort().pop()?.slice(0, 10);
+  const trends = [...visaTypes.keys()].map((type: string) => ({
+    type,
+    series: (data || [])
+      .filter((r: any) => r.visaType === type)
+      .sort((a: any, b: any) => a.dateReported.localeCompare(b.dateReported))
+      .slice(-12)
+      .map((r: any) => r.waitDays),
+  })).filter((t) => t.series.length > 1);
 
   const runPrediction = async () => {
     if (!latest.length || predicting) return;
@@ -867,7 +897,9 @@ function CountryDetail({ country, data, onBack, watchedSet, watchingKey, toggleW
         <Flag code={code} className="dash-country-hero-flag" />
         <div>
           <h2 className="dash-country-hero-name">{country}</h2>
-          <p className="dash-country-hero-sub">{latest.length} visa types tracked</p>
+          <p className="dash-country-hero-sub">
+            {fastestType ? <>Fastest: {fastestType.visaType} · {fastestType.waitDays}d{updatedAt ? <> · Updated {updatedAt}</> : null}</> : "No data yet"}
+          </p>
         </div>
       </div>
 
@@ -887,6 +919,20 @@ function CountryDetail({ country, data, onBack, watchedSet, watchingKey, toggleW
               </div>
             );
           })()}
+
+          {/* Wait trend */}
+          {trends.length > 0 && (
+            <div className="dash-section-card" style={{ marginBottom: 16 }}>
+              <h4 className="dash-section-title">Wait trend</h4>
+              {trends.map((t) => (
+                <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, minWidth: 90 }}>{t.type}</span>
+                  <div className="dash-trend"><Sparkline values={t.series} width={220} height={44} /></div>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{t.series[t.series.length - 1]}d</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* AI wait prediction (OpenAI) */}
           <div className="dash-section-card" style={{ marginBottom: 16 }}>
@@ -985,7 +1031,7 @@ function MyAppsTab({ showAddApp, setShowAddApp, newApp, setNewApp, myApps, myAle
             <Select
               value={newApp.country}
               onChange={(v) => setNewApp({ ...newApp, country: v })}
-              options={COUNTRIES.map((c) => ({ value: c.name, label: c.name, code: c.code }))}
+              options={DESTINATIONS.map((c) => ({ value: c.name, label: c.name, code: c.code }))}
               placeholder="Country"
             />
             <Select
@@ -1003,6 +1049,12 @@ function MyAppsTab({ showAddApp, setShowAddApp, newApp, setNewApp, myApps, myAle
             }} className="dash-action-btn">Track</button>
             <button onClick={() => setShowAddApp(false)} className="dash-cancel-btn">Cancel</button>
           </div>
+        </div>
+      )}
+
+      {myApps === undefined && (
+        <div className="dash-apps-list">
+          {[0, 1].map((i) => <div key={i} className="dash-app-card dash-skel" />)}
         </div>
       )}
 
@@ -1075,6 +1127,7 @@ function ToolsTab({ toolTab, setToolTab, compareCountries, setCompareCountries, 
           { id: "compare" as const, label: "Compare", icon: ChartBarIcon },
           { id: "intelligence" as const, label: "Intelligence", icon: ShieldCheckIcon },
           { id: "hub" as const, label: "Documents", icon: BookOpenIcon },
+          { id: "feeds" as const, label: "Feeds", icon: RssIcon },
         ]).map((t) => (
           <button key={t.id} onClick={() => setToolTab(t.id)} className={`dash-tab ${toolTab === t.id ? "dash-tab-active" : ""}`}>
             <t.icon width={14} height={14} />{t.label}
@@ -1093,6 +1146,7 @@ function ToolsTab({ toolTab, setToolTab, compareCountries, setCompareCountries, 
       )}
       {toolTab === "intelligence" && <IntelligencePanel />}
       {toolTab === "hub" && <HubPanel />}
+      {toolTab === "feeds" && <FeedsPanel />}
     </FadeIn>
   );
 }
@@ -1313,89 +1367,15 @@ function HubPanel() {
   );
 }
 
-function InboxTab() {
-  const messages = useQuery(api.inbox.listMessages, { limit: 30 });
-  const markRead = useMutation(api.inbox.markRead);
-  const sendEmail = useAction(api.inbox.sendEmail);
+function FeedsPanel() {
   const pages = useQuery(api.feeds.latestPages, { limit: 5 });
   const sources = useQuery(api.feeds.listSources);
   const addSource = useMutation(api.feeds.addSource);
-  const [threadId, setThreadId] = useState<string | null>(null);
-  const [to, setTo] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
-  const [sending, setSending] = useState(false);
   const [feedUrl, setFeedUrl] = useState("");
   const [feedLabel, setFeedLabel] = useState("");
-  const [mailSearch, setMailSearch] = useState("");
-  const [unreadOnly, setUnreadOnly] = useState(false);
-  const markAllRead = useMutation(api.inbox.markAllRead);
-
-  const thread = useQuery(api.inbox.listMessages, threadId ? { limit: 30, threadId } : "skip");
-
-  const send = async () => {
-    if (!to || !subject || !body) return;
-    setSending(true);
-    try {
-      await sendEmail({ to, subject, text: body });
-      setTo(""); setSubject(""); setBody("");
-    } catch {
-      toast("Couldn't send. Email isn't connected yet.");
-    }
-    setSending(false);
-  };
 
   return (
     <>
-      <div className="dash-section-card" style={{ marginBottom: 16 }}>
-        <h4 className="dash-section-title"><EnvelopeIcon width={15} height={15} /> Inbox</h4>
-        <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-          <input className="dash-input" style={{ flex: 2, minWidth: 140 }} value={mailSearch} onChange={(e) => setMailSearch(e.target.value)} placeholder="Search mail..." />
-          <button className={`dash-compare-chip ${unreadOnly ? "dash-compare-chip-active" : ""}`} onClick={() => setUnreadOnly(!unreadOnly)}>Unread</button>
-          <button className="dash-compare-chip" onClick={() => markAllRead({})}>Mark all read</button>
-        </div>
-        {!messages || messages.length === 0 ? (
-          <p className="dash-hero-sub">No mail yet. Emails to your inbox will appear here.</p>
-        ) : (
-          <ul className="dash-docs-list">
-            {messages
-              .filter((m: any) => (!unreadOnly || !m.read) && (!mailSearch || `${m.subject ?? ""} ${m.from}`.toLowerCase().includes(mailSearch.toLowerCase())))
-              .map((m: any) => (
-              <li key={m._id} className="dash-doc-item" style={{ cursor: "pointer", fontWeight: m.read ? 400 : 600 }}
-                onClick={() => { setThreadId(m.threadId); if (!m.read) markRead({ id: m._id }); }}>
-                <EnvelopeIcon width={14} height={14} className="dash-doc-check" />
-                <span>{m.direction === "out" ? "→ " : ""}{m.subject || "(no subject)"} <span style={{ opacity: 0.6 }}>· {m.from} · {m.receivedAt.slice(0, 10)}</span></span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {threadId && thread && (
-          <div style={{ marginTop: 12 }}>
-            <h4 className="dash-section-title">Thread</h4>
-            {thread.slice().reverse().map((m: any) => (
-              <p key={m._id} style={{ fontSize: 13, margin: "6px 0" }}><strong>{m.from}:</strong> {m.text?.slice(0, 300)}</p>
-            ))}
-            <button className="dash-compare-chip" onClick={() => setThreadId(null)}>Close thread</button>
-          </div>
-        )}
-      </div>
-
-      <div className="dash-section-card" style={{ marginBottom: 16 }}>
-        <h4 className="dash-section-title"><PaperAirplaneIcon width={15} height={15} /> Compose</h4>
-        <label className="dash-field"><span>To</span>
-          <input className="dash-input" value={to} onChange={(e) => setTo(e.target.value)} placeholder="name@example.com" />
-        </label>
-        <label className="dash-field"><span>Subject</span>
-          <input className="dash-input" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject" />
-        </label>
-        <label className="dash-field"><span>Message</span>
-          <input className="dash-input" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Write a message..." />
-        </label>
-        <button className="dash-compare-chip" onClick={send} style={{ opacity: sending || !to || !subject || !body ? 0.4 : 1 }}>
-          {sending ? "Sending..." : "Send"}
-        </button>
-      </div>
-
       <div className="dash-section-card">
         <h4 className="dash-section-title"><RssIcon width={15} height={15} /> Data feeds (Firecrawl)</h4>
         {(!pages || pages.length === 0) && <p className="dash-hero-sub">No scrapes yet. Add a source below; the cron scrapes active sources every 12h.</p>}
@@ -1418,6 +1398,537 @@ function InboxTab() {
         </div>
         {sources && sources.length > 0 && (
           <p className="dash-hero-sub" style={{ marginTop: 8 }}>{sources.filter((s: any) => s.active).length} active source(s).</p>
+        )}
+      </div>
+    </>
+  );
+}
+
+const ROADMAPS: Record<string, { steps: string[]; needs: string[]; warnings?: string[]; links?: { label: string; url: string }[] }> = {
+  Study: {
+    steps: ["Pick 6-10 schools: 2 safe, 3 moderate, 2 ambitious", "Book IELTS/GRE dates 6 months out", "Draft SOP and request 2-3 LORs", "Apply 8-12 months before intake", "Secure funds and apply for scholarships", "Visa interview with funds proof", "Book flights and housing after approval"],
+    needs: ["School acceptance", "English test score", "Tuition + living funds", "Passport 6+ months"],
+  },
+  Work: {
+    steps: ["Pick your route: sponsored, lottery, or talent", "Get offers from licensed sponsors", "Employer files petition or CoS, or seek endorsement", "Consulate interview", "Relocate and start"],
+    needs: ["Job offer or endorsement", "Salary threshold met", "English proof (most routes)", "Clean record"],
+  },
+  Talent: {
+    steps: ["Map evidence to 2 endorsement criteria", "Get 2-3 recommendation letters", "File endorsement", "File visa within 3 months", "ILR clock runs 3 or 5 years"],
+    needs: ["Exceptional talent or promise", "Recognition evidence", "Referees outside employer"],
+  },
+  "NZ Work": {
+    steps: ["Confirm the employer is INZ-accredited (ask for the number, check the register)", "Check your role on the Green List: Tier 1 means straight to residence", "Hunt on Seek and Trade Me Jobs, apply from Nigeria", "Employer passes the Job Check at median wage", "File your migrant check: passport, contract, IELTS, medical, police", "Land, then in week one: IRD number, bank account, GP enrolment"],
+    needs: ["Accredited employer offer", "Median wage met", "IELTS (most roles)", "Medical + police clearance"],
+    warnings: ["Never pay for a job offer. Real employers never charge applicants.", "Unaccredited employer means no AEWV, no matter the salary.", "Verify accreditation on the INZ register before you resign anything."],
+    links: [
+      { label: "Green List roles", url: "https://www.immigration.govt.nz/work/requirements-for-work-visas/green-list-occupations-qualifications-and-skills/green-list-roles-jobs-we-need-people-for-in-new-zealand/" },
+      { label: "AEWV official guide", url: "https://www.immigration.govt.nz/visas/accredited-employer-work-visa/" },
+      { label: "Seek NZ jobs", url: "https://www.seek.co.nz" },
+      { label: "Trade Me Jobs", url: "https://www.trademe.co.nz/a/jobs" },
+    ],
+  },
+  "UK Work": {
+    steps: ["Pick a route: Skilled Worker (job first) or Global Talent (evidence first)", "Skilled Worker: get an offer from a licensed sponsor with a Certificate of Sponsorship", "Global Talent: get endorsed by Tech Nation or another body, no job needed", "Prove English and maintenance funds (Skilled Worker)", "Apply online, biometrics, fly"],
+    needs: ["Licensed sponsor + CoS, or endorsement", "Salary threshold met", "English B1+", "Clean record"],
+    warnings: ["Nobody can sell you a CoS. Fake sponsorships get visas cancelled.", "Check the sponsor licence register before signing anything.", "Global Talent needs real recognition, not just a good CV."],
+    links: [
+      { label: "Skilled Worker visa", url: "https://www.gov.uk/skilled-worker-visa" },
+      { label: "Global Talent visa", url: "https://www.gov.uk/global-talent" },
+      { label: "Sponsor register", url: "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" },
+    ],
+  },
+  "Canada Work": {
+    steps: ["Pick a route: Express Entry points or employer LMIA offer", "Get credentials assessed (ECA) and sit IELTS or CELPIP", "Build an Express Entry profile and enter the pool", "Get an ITA on a high CRS draw, or a valid LMIA job offer", "Medicals, police, proof of funds, then PR"],
+    needs: ["ECA + language test", "Competitive CRS or LMIA offer", "Settlement funds", "Medical + police clearance"],
+    warnings: ["No agent can guarantee an ITA or a draw score.", "LMIA jobs you pay for are fraud. Employers pay for LMIAs.", "Use only the official CRS calculator to judge your score."],
+    links: [
+      { label: "Express Entry", url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry.html" },
+      { label: "Job Bank", url: "https://www.jobbank.gc.ca" },
+    ],
+  },
+  "Australia Work": {
+    steps: ["Pick a route: Skills in Demand sponsor or skilled points visa", "Get a skills assessment for your occupation", "Secure a sponsor or lodge an expression of interest", "Prove English and meet the salary threshold", "Medicals, police, visa grant"],
+    needs: ["Skills assessment", "Sponsor or points invite", "English test", "Salary threshold met"],
+    warnings: ["Sponsorships for sale are scams and lead to cancellation.", "Only use registered migration agents (MARA number).", "Points cutoffs move every round. Check before paying for tests."],
+    links: [
+      { label: "Work in Australia", url: "https://immi.homeaffairs.gov.au/visas/working-in-australia" },
+      { label: "Skill shortages", url: "https://www.jobsandskills.gov.au" },
+    ],
+  },
+  "Germany Work": {
+    steps: ["Pick a route: EU Blue Card (degree + offer) or Opportunity Card (points)", "Get degrees recognised (Anabin statement)", "Learn German to at least A2 while job hunting", "Sign an offer, open a blocked account for proof of funds", "Apply at the embassy, land, register address (Anmeldung)"],
+    needs: ["Recognised qualification", "Job offer or points total", "Blocked account funds", "Basic German helps everywhere"],
+    warnings: ["Blocked accounts only via official providers (Expatrio, Fintiba, Coracle).", "No real employer asks you to pay for a contract.", "Job Seeker style routes need real funds. Don't borrow and return it."],
+    links: [
+      { label: "Make it in Germany", url: "https://www.make-it-in-germany.com" },
+      { label: "EU Blue Card", url: "https://www.make-it-in-germany.com/en/visa-residence/types-visa/eu-blue-card" },
+    ],
+  },
+  "US Work": {
+    steps: ["Pick a route: H-1B lottery, O-1 talent, or L-1 transfer", "H-1B: employer registers you in the March lottery", "If picked: petition, LCA wage, consulate interview", "O-1: build an evidence pack (awards, press, salary) any time of year", "L-1: 1 year at a multinational abroad, then transfer"],
+    needs: ["Specialty offer or talent evidence", "Degree match (H-1B)", "Petition approved before interview", "Patience with the lottery"],
+    warnings: ["H-1B selection runs under 20 percent most years. Always have a plan B.", "Never pay your own H-1B fees. The employer pays by law.", "Consultants who guarantee lottery wins are lying."],
+    links: [
+      { label: "H-1B visas", url: "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" },
+      { label: "O-1 visas", url: "https://www.uscis.gov/working-in-the-united-states/o-1-visa-individuals-with-extraordinary-ability-or-achievement" },
+    ],
+  },
+};
+
+function PrepTab() {
+  const [prepTab, setPrepTab] = useState<"sop" | "interview" | "radar" | "roads">("sop");
+  return (
+    <>
+      <div className="dash-tools-tabs prep-subbar">
+        {([
+          { id: "sop" as const, label: "SOP Studio" },
+          { id: "interview" as const, label: "Mock Interview" },
+          { id: "radar" as const, label: "Opportunities" },
+          { id: "roads" as const, label: "Roadmaps" },
+        ]).map((t) => (
+          <button key={t.id} onClick={() => setPrepTab(t.id)} className={`dash-tab ${prepTab === t.id ? "dash-tab-active" : ""}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {prepTab === "sop" && <SOPPanel />}
+      {prepTab === "interview" && <InterviewPanel />}
+      {prepTab === "radar" && <RadarPanel />}
+      {prepTab === "roads" && <RoadsPanel />}
+    </>
+  );
+}
+
+type LocalDraft = { id: string; country: string; visaType: string; school: string; draft: string; updatedAt: string };
+
+function loadDrafts(): LocalDraft[] {
+  try {
+    return JSON.parse(localStorage.getItem("vradr_sop_drafts") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function SOPPanel() {
+  const generate = useAction(api.studio.generateSOP);
+  const review = useAction(api.studio.reviewDocument);
+  const [mode, setMode] = useState<"write" | "review">("write");
+  const [country, setCountry] = useState("");
+  const [visaType, setVisaType] = useState("Student");
+  const [school, setSchool] = useState("");
+  const [course, setCourse] = useState("");
+  const [background, setBackground] = useState("");
+  const [tone, setTone] = useState("");
+  const [traits, setTraits] = useState("");
+  const [draft, setDraft] = useState("");
+  const [doc, setDoc] = useState("");
+  const [result, setResult] = useState<{ score: number; verdict: string; fixes: string[] } | null>(null);
+  const [working, setWorking] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [drafts, setDrafts] = useState<LocalDraft[]>(loadDrafts);
+
+  const persist = (next: LocalDraft[]) => {
+    setDrafts(next);
+    try {
+      localStorage.setItem("vradr_sop_drafts", JSON.stringify(next));
+    } catch {
+      toast("Couldn't save. Device storage is full.");
+    }
+  };
+
+  const run = async () => {
+    if (!country || !background || working) return;
+    setWorking(true);
+    try {
+      const r = await generate({ country, visaType, school: school || undefined, course: course || undefined, background, tone: tone || undefined, traits: traits || undefined });
+      setDraft(r.draft);
+    } catch {
+      toast("Couldn't generate. AI isn't connected yet.");
+    }
+    setWorking(false);
+  };
+
+  const runReview = async () => {
+    if (!country || !doc || working) return;
+    setWorking(true);
+    try {
+      setResult(await review({ document: doc, country, visaType }));
+    } catch {
+      toast("Couldn't review. AI isn't connected yet.");
+    }
+    setWorking(false);
+  };
+
+  // Files never leave the device. Only extracted text is scored.
+  const readFile = async (f: File) => {
+    if (f.size > 500 * 1024) {
+      toast("File too large. Keep it under 500KB.");
+      return;
+    }
+    setParsing(true);
+    try {
+      const ext = f.name.split(".").pop()?.toLowerCase();
+      let text = "";
+      if (ext === "txt" || ext === "md") {
+        text = await f.text();
+      } else if (ext === "docx") {
+        const mammoth = await import("mammoth");
+        const buf = await f.arrayBuffer();
+        text = (await mammoth.extractRawText({ arrayBuffer: buf })).value;
+      } else if (ext === "pdf") {
+        const pdfjs = await import("pdfjs-dist");
+        const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+        pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+        const pdf = await pdfjs.getDocument({ data: await f.arrayBuffer() }).promise;
+        const parts: string[] = [];
+        for (let i = 1; i <= Math.min(pdf.numPages, 10) && parts.join("\n").length < 6000; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          parts.push(content.items.map((it: any) => ("str" in it ? it.str : "")).join(" "));
+        }
+        text = parts.join("\n");
+      } else {
+        toast("That file type isn't supported. Use txt, md, docx, or pdf.");
+        return;
+      }
+      text = text.trim().slice(0, 6000);
+      if (!text) {
+        toast("Couldn't read any text from that file.");
+        return;
+      }
+      setDoc(text);
+      setResult(null);
+    } catch {
+      toast("Couldn't read that file. Try pasting the text.");
+    }
+    setParsing(false);
+  };
+
+  return (
+    <>
+      <div className="dash-section-card" style={{ marginBottom: 16 }}>
+        <h4 className="dash-section-title">SOP Studio</h4>
+        <p className="dash-hero-sub">Drafts stay on this device only. Clearing browser data or signing in on a new phone loses them.</p>
+        <div className="dash-compare-chips" style={{ marginTop: 8 }}>
+          {(["write", "review"] as const).map((m) => (
+            <button key={m} onClick={() => setMode(m)} className={`dash-compare-chip ${mode === m ? "dash-compare-chip-active" : ""}`}>
+              {m === "write" ? "Write" : "Review"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {mode === "write" ? (
+        <>
+          <div className="dash-section-card" style={{ marginBottom: 16 }}>
+            <h4 className="dash-section-title">Your details</h4>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+              <div style={{ flex: 1, minWidth: 140 }}>
+                <Select value={country} onChange={setCountry} options={DESTINATIONS.map((c) => ({ value: c.name, label: c.name, code: c.code }))} placeholder="Destination" />
+              </div>
+              <div style={{ flex: 1, minWidth: 140 }}>
+                <Select value={visaType} onChange={setVisaType} options={VISA_TYPES.map((v) => ({ value: v.id, label: v.id }))} />
+              </div>
+            </div>
+        <label className="dash-field"><span>School or employer (optional)</span>
+          <input className="dash-input" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="e.g. University of Toronto" />
+        </label>
+        <label className="dash-field"><span>Course or role (optional)</span>
+          <input className="dash-input" value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. MSc Computer Science" />
+        </label>
+        <label className="dash-field"><span>Your background</span>
+          <textarea className="dash-input" rows={3} value={background} onChange={(e) => setBackground(e.target.value)} placeholder="Degree, work, goals in a few lines..." />
+        </label>
+        <label className="dash-field"><span>How should it sound? (optional)</span>
+          <input className="dash-input" value={tone} onChange={(e) => setTone(e.target.value)} placeholder="e.g. confident and direct" />
+        </label>
+        <label className="dash-field"><span>What defines you? (optional)</span>
+          <input className="dash-input" value={traits} onChange={(e) => setTraits(e.target.value)} placeholder="e.g. self-taught coder, community tutor" />
+        </label>
+            <button className="dash-compare-chip" onClick={run} style={{ opacity: working || !country || !background ? 0.4 : 1 }}>
+              {working ? "Writing..." : "Draft my SOP"}
+            </button>
+          </div>
+          {draft && (
+            <div className="dash-section-card" style={{ marginBottom: 16 }}>
+              <h4 className="dash-section-title">Draft (edit freely)</h4>
+              <textarea className="dash-input" rows={10} value={draft} onChange={(e) => setDraft(e.target.value)} />
+              <button className="dash-compare-chip" style={{ marginTop: 8 }} onClick={() => {
+                persist([{ id: `${Date.now()}`, country, visaType, school, draft, updatedAt: new Date().toISOString().slice(0, 10) }, ...drafts].slice(0, 20));
+                toast("Saved on this device.");
+              }}>Save on this device</button>
+            </div>
+          )}
+          {drafts.length > 0 && (
+            <div className="dash-section-card">
+              <h4 className="dash-section-title">Your drafts</h4>
+              <ul className="dash-docs-list">
+                {drafts.map((s) => (
+                  <li key={s.id} className="dash-doc-item">
+                    <CheckCircleIcon width={14} height={14} className="dash-doc-check" />
+                    <span style={{ flex: 1 }}>{s.visaType} to {s.country}{s.school ? ` · ${s.school}` : ""}</span>
+                    <button className="dash-compare-chip" onClick={() => { setDraft(s.draft); setCountry(s.country); setVisaType(s.visaType); setSchool(s.school); }}>Open</button>
+                    <button className="dash-app-delete" onClick={() => persist(drafts.filter((d) => d.id !== s.id))}><TrashIcon width={14} height={14} /></button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="dash-section-card">
+          <h4 className="dash-section-title">Review a document</h4>
+          <p className="dash-hero-sub">Paste or upload an SOP or cover letter. Parsed on your device, only text is scored, nothing is stored.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8, marginTop: 8 }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <Select value={country} onChange={setCountry} options={DESTINATIONS.map((c) => ({ value: c.name, label: c.name, code: c.code }))} placeholder="Destination" />
+            </div>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <Select value={visaType} onChange={setVisaType} options={VISA_TYPES.map((v) => ({ value: v.id, label: v.id }))} />
+            </div>
+          </div>
+          <textarea className="dash-input" rows={8} value={doc} onChange={(e) => setDoc(e.target.value)} placeholder="Paste your document here, or upload below..." />
+          <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <label className="dash-compare-chip" style={{ cursor: "pointer" }}>
+              {parsing ? "Reading file..." : "Upload file"}
+              <input type="file" accept=".txt,.md,.docx,.pdf" style={{ display: "none" }} onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) readFile(f);
+                e.target.value = "";
+              }} />
+            </label>
+            <span className="dash-hero-sub">txt, md, docx, pdf · stays on your device</span>
+          </div>
+          <button className="dash-compare-chip" style={{ marginTop: 8, opacity: working || parsing || !country || !doc ? 0.4 : 1 }} onClick={runReview}>
+            {working ? "Reviewing..." : "Score my document"}
+          </button>
+          {result && (
+            <div style={{ marginTop: 12 }}>
+              <div className="dash-avg-number">{result.score}<span className="dash-avg-unit"> / 100</span></div>
+              <p className="dash-hero-sub">{result.verdict}</p>
+              <div className="dash-compare-chips" style={{ marginTop: 8 }}>
+                {result.fixes.map((f) => (
+                  <span key={f} className="dash-compare-chip" style={{ cursor: "default" }}>{f}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+function InterviewPanel() {
+  const getQuestions = useAction(api.studio.getQuestions);
+  const doScore = useAction(api.studio.scoreAnswer);
+  const save = useMutation(api.studio.saveSession);
+  const sessions = useQuery(api.studio.listSessions, {});
+  const [country, setCountry] = useState("");
+  const [visaType, setVisaType] = useState("Tourist");
+  const [questions, setQuestions] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [results, setResults] = useState<Record<number, { score: number; feedback: string; model: string }>>({});
+  const [loading, setLoading] = useState(false);
+  const [scoring, setScoring] = useState<number | null>(null);
+
+  const start = async () => {
+    if (!country || loading) return;
+    setLoading(true);
+    try {
+      const r = await getQuestions({ country, visaType, count: 5 });
+      setQuestions(r.questions);
+      setAnswers({});
+      setResults({});
+    } catch {
+      toast("Couldn't load questions. AI isn't connected yet.");
+    }
+    setLoading(false);
+  };
+
+  const answer = async (i: number) => {
+    const text = answers[i];
+    if (!text || scoring !== null) return;
+    setScoring(i);
+    try {
+      const r = await doScore({ question: questions[i], answer: text, country, visaType });
+      setResults({ ...results, [i]: r });
+    } catch {
+      toast("Couldn't score. AI isn't connected yet.");
+    }
+    setScoring(null);
+  };
+
+  const avg = Object.values(results).length
+    ? Math.round(Object.values(results).reduce((s, r) => s + r.score, 0) / Object.values(results).length)
+    : null;
+
+  return (
+    <>
+      <div className="dash-section-card" style={{ marginBottom: 16 }}>
+        <h4 className="dash-section-title">Mock interview</h4>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <Select value={country} onChange={setCountry} options={DESTINATIONS.map((c) => ({ value: c.name, label: c.name, code: c.code }))} placeholder="Destination" />
+          </div>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <Select value={visaType} onChange={setVisaType} options={VISA_TYPES.map((v) => ({ value: v.id, label: v.id }))} />
+          </div>
+        </div>
+        <button className="dash-compare-chip" onClick={start} style={{ opacity: loading || !country ? 0.4 : 1 }}>
+          {loading ? "Loading..." : "Start session"}
+        </button>
+        {avg !== null && <p className="dash-hero-sub" style={{ marginTop: 8 }}>Session average: <strong>{avg}</strong></p>}
+      </div>
+      {questions.map((q, i) => (
+        <div key={i} className="dash-section-card" style={{ marginBottom: 12 }}>
+          <h4 className="dash-section-title">Q{i + 1}: {q}</h4>
+          <textarea className="dash-input" rows={2} value={answers[i] ?? ""} onChange={(e) => setAnswers({ ...answers, [i]: e.target.value })} placeholder="Answer like at the embassy..." />
+          <button className="dash-compare-chip" style={{ marginTop: 8, opacity: !answers[i] || scoring !== null ? 0.4 : 1 }} onClick={() => answer(i)}>
+            {scoring === i ? "Scoring..." : "Submit answer"}
+          </button>
+          {results[i] && (
+            <div style={{ marginTop: 8 }}>
+              <p className="dash-hero-sub">Score: <strong>{results[i].score}</strong> · {results[i].feedback}</p>
+              <p className="dash-hero-sub">Strong answer: {results[i].model}</p>
+            </div>
+          )}
+        </div>
+      ))}
+      {questions.length > 0 && avg !== null && (
+        <button className="dash-compare-chip" onClick={async () => {
+          await save({ country, visaType, questions, answers: questions.map((_, i) => answers[i] ?? ""), scores: questions.map((_, i) => results[i]?.score ?? 0) });
+          toast("Session saved.");
+        }}>Save session</button>
+      )}
+      {sessions && sessions.length > 0 && (
+        <div className="dash-section-card" style={{ marginTop: 16 }}>
+          <h4 className="dash-section-title">Past sessions</h4>
+          <ul className="dash-docs-list">
+            {sessions.map((s: any) => {
+              const a = s.scores.length ? Math.round(s.scores.reduce((x: number, y: number) => x + y, 0) / s.scores.length) : 0;
+              return (
+                <li key={s._id} className="dash-doc-item">
+                  <CheckCircleIcon width={14} height={14} className="dash-doc-check" />
+                  <span>{s.visaType} to {s.country} · avg {a} · {s.createdAt.slice(0, 10)}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </>
+  );
+}
+
+function RadarPanel() {
+  const [kind, setKind] = useState<"" | "scholarship" | "job">("");
+  const list = useQuery(api.opportunities.list, kind ? { kind } : {});
+  const seed = useMutation(api.opportunities.seedOpportunities);
+  const remind = useMutation(api.opportunities.remindMe);
+  const refresh = useAction(api.opportunities.refreshOne);
+
+  const daysLeft = (d?: string) => {
+    if (!d) return null;
+    const n = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000);
+    return n < 0 ? "past" : `${n}d left`;
+  };
+
+  return (
+    <>
+      <div className="dash-section-card" style={{ marginBottom: 16 }}>
+        <h4 className="dash-section-title">Opportunities<span className="dash-swipe-hint">swipe →</span></h4>
+        <div className="dash-compare-chips">
+          {([{ id: "", label: "All" }, { id: "scholarship", label: "Scholarships" }, { id: "job", label: "Work routes" }] as const).map((k) => (
+            <button key={k.label} onClick={() => setKind(k.id as any)} className={`dash-compare-chip ${kind === k.id ? "dash-compare-chip-active" : ""}`}>{k.label}</button>
+          ))}
+        </div>
+      </div>
+      {!list || list.length === 0 ? (
+        <div className="dash-section-card">
+          <p className="dash-hero-sub">No opportunities loaded yet.</p>
+          <button className="dash-compare-chip" style={{ marginTop: 8 }} onClick={() => seed({})}>Load opportunities</button>
+        </div>
+      ) : (
+        <div className="dash-apps-list">
+          {list.map((o: any) => (
+            <div key={o._id} className="dash-app-card">
+              <div className="dash-app-info">
+                <span className="dash-app-country">{o.title}</span>
+                <span className="dash-app-meta">{o.country}{o.funding ? ` · ${o.funding}` : ""}{o.deadline ? ` · ${daysLeft(o.deadline) ?? o.deadline}` : ""}</span>
+              </div>
+              <span className="dash-status-pill">{o.kind === "job" ? "Work" : "Study"}</span>
+              <div style={{ display: "flex", gap: 8, flexBasis: "100%", flexWrap: "wrap" }}>
+                {o.requirements.slice(0, 3).map((r: string) => (
+                  <span key={r} className="dash-compare-chip" style={{ cursor: "default" }}>{r}</span>
+                ))}
+                {o.deadline && (
+                  <button className="dash-compare-chip" onClick={async () => { await remind({ title: o.title, deadline: o.deadline }); toast("Reminder saved."); }}>Remind me</button>
+                )}
+                <button className="dash-compare-chip" onClick={async () => {
+                  try { await refresh({ id: o._id, url: o.url }); toast("Rechecked."); }
+                  catch { toast("Couldn't recheck. Feeds aren't connected."); }
+                }}>Recheck</button>
+                <a className="dash-compare-chip" href={o.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>Open site</a>
+              </div>
+              <span className="dash-hero-sub" style={{ flexBasis: "100%" }}>Checked {o.lastChecked.slice(0, 10)} · {o.source}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function RoadsPanel() {
+  const [route, setRoute] = useState("Study");
+  const [step, setStep] = useState(0);
+  const data = ROADMAPS[route];
+  return (
+    <>
+      <div className="dash-section-card" style={{ marginBottom: 16 }}>
+        <h4 className="dash-section-title">Pick your route</h4>
+        <div className="dash-compare-chips">
+          {Object.keys(ROADMAPS).map((r) => (
+            <button key={r} onClick={() => { setRoute(r); setStep(0); }} className={`dash-compare-chip ${route === r ? "dash-compare-chip-active" : ""}`}>{r}</button>
+          ))}
+        </div>
+      </div>
+      <div className="dash-section-card">
+        <h4 className="dash-section-title">{route} roadmap</h4>
+        <div className="dash-avg-card" style={{ marginBottom: 12 }}>
+          <span className="dash-avg-label">Step {Math.min(step + 1, data.steps.length)} of {data.steps.length}</span>
+          <p style={{ fontSize: 15, fontWeight: 600, margin: "4px 0 10px" }}>{data.steps[Math.min(step, data.steps.length - 1)]}</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="dash-compare-chip" onClick={() => setStep(Math.max(0, step - 1))} style={{ opacity: step === 0 ? 0.4 : 1 }}>Back</button>
+            <button className="dash-compare-chip" onClick={() => setStep(Math.min(data.steps.length - 1, step + 1))} style={{ opacity: step >= data.steps.length - 1 ? 0.4 : 1 }}>Next</button>
+          </div>
+        </div>
+        <h4 className="dash-section-title">What you need</h4>
+        <div className="dash-compare-chips">
+          {data.needs.map((n) => (
+            <span key={n} className="dash-compare-chip" style={{ cursor: "default" }}>{n}</span>
+          ))}
+        </div>
+        {data.warnings && (
+          <>
+            <h4 className="dash-section-title" style={{ marginTop: 16 }}>Watch out</h4>
+            <div className="dash-avg-card" style={{ borderColor: "#ef4444" }}>
+              {data.warnings.map((w) => (
+                <p key={w} className="dash-hero-sub" style={{ margin: "4px 0" }}>! {w}</p>
+              ))}
+            </div>
+          </>
+        )}
+        {data.links && (
+          <>
+            <h4 className="dash-section-title" style={{ marginTop: 16 }}>Official sources</h4>
+            <div className="dash-compare-chips">
+              {data.links.map((l) => (
+                <a key={l.url} className="dash-compare-chip" href={l.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>{l.label}</a>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </>
