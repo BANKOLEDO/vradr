@@ -1,4 +1,5 @@
 import { query, mutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { QueryCtx } from "./_generated/server";
@@ -52,6 +53,20 @@ export const getIdentityEmail = query({
   },
 });
 
+// Welcome once per user, on either profile path.
+async function maybeWelcome(
+  ctx: MutationCtx,
+  id: Id<"users">,
+  welcomed: boolean | undefined,
+  email: string,
+  name: string | undefined,
+  country: string
+) {
+  if (welcomed || !email) return;
+  await ctx.db.patch(id, { welcomed: true });
+  await ctx.scheduler.runAfter(0, internal.notify.welcomeUser, { email, name, country });
+}
+
 export const createProfile = mutation({
   args: {
     country: v.string(),
@@ -73,6 +88,7 @@ export const createProfile = mutation({
         country: args.country,
         ...(args.name ? { name: args.name } : {}),
       });
+      await maybeWelcome(ctx, existing._id, existing.welcomed, email, args.name, args.country);
       return existing._id;
     }
 
@@ -81,15 +97,10 @@ export const createProfile = mutation({
       email,
       country: args.country,
       name: args.name,
+      welcomed: false,
       createdAt: new Date().toISOString(),
     });
-    if (email) {
-      await ctx.scheduler.runAfter(0, internal.notify.welcomeUser, {
-        email,
-        name: args.name,
-        country: args.country,
-      });
-    }
+    await maybeWelcome(ctx, id, false, email, args.name, args.country);
     return id;
   },
 });

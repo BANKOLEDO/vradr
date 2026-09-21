@@ -48,6 +48,13 @@ describe("Firecrawl feeds", () => {
     const r = await t.mutation(internal.feeds.pruneOld, {});
     expect(r.timelines).toBe(1);
   });
+  it("guards discovery behind auth and keys", async () => {
+    const t = convexTest(schema, modules);
+    await expect(t.action(api.feeds.discover, { query: "visa wait times" })).rejects.toThrow("Not authenticated");
+    const asUser = t.withIdentity({ subject: "finder" });
+    await expect(asUser.action(api.feeds.discover, { query: "visa wait times" })).rejects.toThrow("not set");
+  });
+
   it("adds a feed source for an authenticated user only", async () => {
     const t = convexTest(schema, modules);
     const asUser = t.withIdentity({ subject: "feed-user" });
