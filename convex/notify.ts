@@ -30,12 +30,13 @@ export const welcomeUser = internalAction({
     if (!args.email) return null;
     if (!process.env.AGENTMAIL_API_KEY || !process.env.AGENTMAIL_INBOX_ID) return null;
     const { apiKey, inboxId } = creds();
+    const first = args.name?.split(" ")[0];
     await sendAlert(
       apiKey,
       inboxId,
       args.email,
-      "Welcome to VRADR",
-      `Hi${args.name ? ` ${args.name}` : ""}, your visa tracking is set${args.country ? ` for ${args.country}` : ""}. Track applications, watch wait times, and get alerts the moment things change.`
+      `Welcome to VRADR${args.country ? `, ${first || "traveller"}` : ""} — your visa tracking is set`,
+      `Hi${first ? ` ${first}` : ""},\n\nYour account is ready${args.country ? ` and your dashboard is tuned for leaving ${args.country}` : ""}. Three things worth doing today:\n\n1. Track an application — My Apps counts down against live waits for you.\n2. Watch a country — you get an email the moment its wait moves.\n3. Open Prep — draft your SOP, rehearse the interview, check scholarships.\n\nNo embassy site refreshing required anymore.\n\n— The VRADR team`
     );
     return null;
   },
@@ -48,7 +49,8 @@ export const sendReminder = internalAction({
     if (!args.email) return null;
     if (!process.env.AGENTMAIL_API_KEY || !process.env.AGENTMAIL_INBOX_ID) return null;
     const { apiKey, inboxId } = creds();
-    await sendAlert(apiKey, inboxId, args.email, `VRADR reminder: ${args.title}`, `${args.title} is due on ${args.deadline}. Open VRADR to stay on track.`);
+    await sendAlert(apiKey, inboxId, args.email, `Reminder: ${args.title} closes ${args.deadline}`,
+      `${args.title} closes on ${args.deadline}.\n\nOpen VRADR to review the requirements and get your documents in order before the window shuts.`);
     return null;
   },
 });
@@ -60,10 +62,10 @@ export const notifyWaitUpdate = internalAction({
     if (!args.email) return null;
     if (!process.env.AGENTMAIL_API_KEY || !process.env.AGENTMAIL_INBOX_ID) return null;
     const { apiKey, inboxId } = creds();
-    const direction = args.newWait > args.oldWait ? "increased" : "decreased";
+    const faster = args.newWait < args.oldWait;
     await sendAlert(apiKey, inboxId, args.email,
-      `VRADR Alert: ${args.country} ${args.visaType} wait time ${direction}`,
-      `The processing time for ${args.visaType} visas in ${args.country} has ${direction} from ${args.oldWait} to ${args.newWait} days.\n\nTrack your visa at VRADR.`);
+      `${faster ? "Good news" : "Heads up"}: ${args.country} ${args.visaType} is now ${args.newWait} days (was ${args.oldWait})`,
+      `${faster ? "Good news." : "Heads up."} The ${args.visaType} wait for ${args.country} moved from ${args.oldWait} to ${args.newWait} days.\n\n${faster ? "Windows like this close fast. If you were waiting, this is your moment." : "If you have an application in, sit tight and watch your countdown in My Apps."}\n\n— The VRADR team`);
     return null;
   },
 });
@@ -92,9 +94,9 @@ export const sendWaitTimeUpdate = action({
   returns: v.object({ message_id: v.string(), thread_id: v.string() }),
   handler: async (_ctx, args) => {
     const { apiKey, inboxId } = creds();
-    const direction = args.newWait > args.oldWait ? "increased" : "decreased";
-    const subject = `VRADR Alert: ${args.country} ${args.visaType} wait time ${direction}`;
-    const text = `The processing time for ${args.visaType} visas in ${args.country} has ${direction} from ${args.oldWait} to ${args.newWait} days.\n\nTrack your visa at VRADR.`;
+    const faster = args.newWait < args.oldWait;
+    const subject = `${faster ? "Good news" : "Heads up"}: ${args.country} ${args.visaType} is now ${args.newWait} days (was ${args.oldWait})`;
+    const text = `${faster ? "Good news." : "Heads up."} The ${args.visaType} wait for ${args.country} moved from ${args.oldWait} to ${args.newWait} days.\n\n${faster ? "Windows like this close fast. If you were waiting, this is your moment." : "If you have an application in, sit tight and watch your countdown in My Apps."}\n\n— The VRADR team`;
     return await sendAlert(apiKey, inboxId, args.to, subject, text);
   },
 });
