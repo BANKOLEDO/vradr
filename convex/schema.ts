@@ -46,7 +46,9 @@ export default defineSchema({
     userId: v.string(),
     country: v.string(),
     visaType: v.string(),
-  }).index("by_user", ["userId"]),
+  })
+    .index("by_user", ["userId"])
+    .index("by_place", ["country", "visaType"]),
 
   feedSources: defineTable({
     url: v.string(),
@@ -60,23 +62,44 @@ export default defineSchema({
     url: v.string(),
     title: v.optional(v.string()),
     markdown: v.string(),
+    hash: v.optional(v.string()),
     source: v.string(),
     scrapedAt: v.string(),
   }).index("by_url", ["url"]),
 
-  emails: defineTable({
-    inboxId: v.string(),
-    threadId: v.string(),
-    messageId: v.string(),
-    direction: v.union(v.literal("in"), v.literal("out")),
-    from: v.string(),
-    to: v.array(v.string()),
-    subject: v.optional(v.string()),
-    text: v.optional(v.string()),
-    read: v.boolean(),
-    receivedAt: v.string(),
+  sops: defineTable({
+    userId: v.string(),
+    country: v.string(),
+    visaType: v.string(),
+    school: v.optional(v.string()),
+    course: v.optional(v.string()),
+    background: v.string(),
+    draft: v.string(),
+    updatedAt: v.string(),
+  }).index("by_user", ["userId"]),
+
+  interviewSessions: defineTable({
+    userId: v.string(),
+    country: v.string(),
+    visaType: v.string(),
+    questions: v.array(v.string()),
+    answers: v.array(v.string()),
+    scores: v.array(v.number()),
+    createdAt: v.string(),
+  }).index("by_user", ["userId"]),
+
+  opportunities: defineTable({
+    title: v.string(),
+    kind: v.union(v.literal("scholarship"), v.literal("job")),
+    country: v.string(),
+    degree: v.optional(v.string()),
+    funding: v.optional(v.string()),
+    deadline: v.optional(v.string()),
+    url: v.string(),
+    requirements: v.array(v.string()),
+    source: v.string(),
+    lastChecked: v.string(),
   })
-    .index("by_inbox", ["inboxId"])
-    .index("by_thread", ["threadId"])
-    .index("by_message", ["messageId"]),
+    .index("by_country", ["country"])
+    .index("by_kind", ["kind"]),
 });
