@@ -16,16 +16,16 @@ const compareRows = [
 ];
 
 const FAQ = [
-  { q: "What does VRADR actually do?", a: "It scrapes official embassy pages and verified applicant reports across multiple countries, then turns them into one live timeline with trend lines, an AI projection, and alerts for your own applications." },
+  { q: "What does VRADR actually do?", a: "It scrapes official embassy pages across 15 countries into one live timeline with trend lines and AI projections, tracks your applications with countdowns, drafts SOPs in your voice, rehearses interviews with scores, maps scholarships and work routes, and emails you the moment anything changes." },
   { q: "How accurate is the prediction?", a: "The model weighs historical patterns, seasonal peaks, and the freshest embassy data. It shows you a window rather than a single day, and accuracy improves as more verified reports arrive." },
   { q: "Do I need an account?", a: "Yes, and it's free. A quick signup unlocks the dashboard for any country and visa type, plus personalization, application tracking, and alerts. Terms and Privacy are always available below." },
-  { q: "Which countries are covered?", a: "12 destinations live now: US, UK, Canada, Germany, Australia, Japan, France, India, Brazil, South Korea, Schengen, and UAE. More coming soon." },
+  { q: "Which countries are covered?", a: "15 destinations live now: US, UK, Canada, Germany, Australia, Japan, France, India, Brazil, South Korea, Schengen, UAE, Spain, Poland, and New Zealand. More coming soon." },
   { q: "How do alerts work?", a: "Add an application to the tracker and VRADR notifies you when the reported window changes or new embassy data lands, before the shift costs you a plan." },
 ];
 
 const heroStats = [
-  { value: "12", label: "Destinations live" },
-  { value: "6", label: "Visa types" },
+  { value: "15", label: "Destinations live" },
+  { value: "15", label: "Visa types" },
   { value: "Nightly", label: "Embassy re-scrape" },
   { value: "Real", label: "Processing data" },
 ];
@@ -251,22 +251,23 @@ export default function Landing() {
         <div style={{ maxWidth: 1020, margin: "0 auto" }}>
           <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>Under the hood</p>
           <h2 className="heading-lg" style={{ margin: "0 0 32px", textWrap: "balance" }}>Four engines doing real work</h2>
-          <div className="why-cols" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
+          <ul className="stack-strip">
             {[
               { name: "Convex", logo: "https://cdn.simpleicons.org/convex", desc: "Your data updates live on every device, instantly. No refresh button, no waiting." },
-              { name: "OpenAI", logo: "https://cdn.worldvectorlogo.com/logos/openai-2.svg", desc: "Wait predictions, SOP drafts in your voice, and interview practice with scores." },
+              { name: "OpenAI", logo: "https://cdn.worldvectorlogo.com/logos/openai-2.svg", invert: true, desc: "Wait predictions, SOP drafts in your voice, and interview practice with scores." },
               { name: "Firecrawl", logo: "https://www.firecrawl.dev/favicon.ico", desc: "Embassy pages checked nightly, so every number is fresh, never stale." },
               { name: "AgentMail", logo: "https://agentmail.to/favicon.ico", desc: "Welcome notes, deadline reminders, and wait alerts land in your email." },
-            ].map((s) => (
-              <div key={s.name} className="card" style={{ padding: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                  <img src={s.logo} alt={`${s.name} logo`} loading="lazy" className={s.name === "OpenAI" ? "brandlogo brandlogo-invert" : "brandlogo"} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  <p style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: "var(--text)", margin: 0 }}>{s.name}</p>
-                </div>
-                <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-muted)", margin: 0 }}>{s.desc}</p>
-              </div>
+            ].map((s, i) => (
+              <li key={s.name} className="stack-cell">
+                <span className="stack-num">0{i + 1}</span>
+                <span className="stack-logo">
+                  <img src={s.logo} alt={`${s.name} logo`} loading="lazy" className={s.invert ? "brandlogo brandlogo-invert" : "brandlogo"} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <span className="stack-name">{s.name}</span>
+                </span>
+                <p className="stack-role">{s.desc}</p>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
