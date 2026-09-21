@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useMutation, useAction, usePaginatedQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 import { ThemeToggle } from "../components/ThemeToggle";
@@ -81,6 +81,7 @@ const COUNTRIES: { name: string; code: string }[] = [
   { name: "UAE", code: "AE" },
   { name: "Spain", code: "ES" },
   { name: "Poland", code: "PL" },
+  { name: "New Zealand", code: "NZ" },
 ];
 
 // Full destination list for forms. The browse grid stays on tracked countries.
@@ -93,7 +94,7 @@ const DESTINATIONS: { name: string; code: string }[] = [
   { name: "Portugal", code: "PT" }, { name: "Greece", code: "GR" },
   { name: "Turkey", code: "TR" }, { name: "China", code: "CN" },
   { name: "Malaysia", code: "MY" }, { name: "Singapore", code: "SG" },
-  { name: "New Zealand", code: "NZ" }, { name: "Mexico", code: "MX" },
+  { name: "Mexico", code: "MX" },
   { name: "South Africa", code: "ZA" }, { name: "Kenya", code: "KE" },
 ];
 
@@ -871,7 +872,11 @@ function CountryDetail({ country, data, onBack, watchedSet, watchingKey, toggleW
   })).filter((t) => t.series.length > 1);
 
   const runPrediction = async () => {
-    if (!latest.length || predicting) return;
+    if (predicting) return;
+    if (!latest.length) {
+      toast("No history to predict from yet.");
+      return;
+    }
     setPredicting(true);
     try {
       const top = [...latest].sort((a, b) => a.waitDays - b.waitDays)[0];
@@ -1371,8 +1376,38 @@ function FeedsPanel() {
   const pages = useQuery(api.feeds.latestPages, { limit: 5 });
   const sources = useQuery(api.feeds.listSources);
   const addSource = useMutation(api.feeds.addSource);
+  const removeSource = useMutation(api.feeds.removeSource);
+  const setActive = useMutation(api.feeds.setSourceActive);
+  const discover = useAction(api.feeds.discover);
   const [feedUrl, setFeedUrl] = useState("");
   const [feedLabel, setFeedLabel] = useState("");
+  const [finding, setFinding] = useState(false);
+
+  const find = async () => {
+    if (finding) return;
+    setFinding(true);
+    try {
+      const r = await discover({ query: "visa appointment wait times embassy", limit: 10 });
+      const n = r.filter((x: any) => x.added).length;
+      toast(n ? `${n} new source(s) waiting for review.` : "Nothing new found.");
+    } catch {
+      toast("Couldn't search. Feeds aren't connected.");
+    }
+    setFinding(false);
+  };
+
+  const pending = (sources ?? []).filter((s: any) => !s.active);
+
+  const addFeed = async () => {
+    if (!feedUrl || !feedLabel) return;
+    try {
+      await addSource({ url: feedUrl, label: feedLabel });
+      setFeedUrl("");
+      setFeedLabel("");
+    } catch (e: any) {
+      toast(e?.message || "Couldn't add that source.");
+    }
+  };
 
   return (
     <>
@@ -1392,12 +1427,46 @@ function FeedsPanel() {
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
           <input className="dash-input" style={{ flex: 2, minWidth: 180 }} value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} placeholder="https:// source URL" />
           <input className="dash-input" style={{ flex: 1, minWidth: 120 }} value={feedLabel} onChange={(e) => setFeedLabel(e.target.value)} placeholder="Label" />
-          <button className="dash-compare-chip" onClick={() => { if (feedUrl && feedLabel) { addSource({ url: feedUrl, label: feedLabel }); setFeedUrl(""); setFeedLabel(""); } }}>
+          <button className="dash-compare-chip" onClick={addFeed}>
             <PlusIcon width={13} height={13} /> Add
           </button>
+          <button className="dash-compare-chip" onClick={find} style={{ opacity: finding ? 0.4 : 1 }}>
+            {finding ? "Searching..." : "Discover"}
+          </button>
         </div>
+        {pending.length > 0 && (
+          <>
+            <h4 className="dash-section-title" style={{ marginTop: 16 }}>Waiting for review</h4>
+            <ul className="dash-docs-list">
+              {pending.map((s: any) => (
+                <li key={s._id} className="dash-doc-item">
+                  <CheckCircleIcon width={14} height={14} className="dash-doc-check" />
+                  <span style={{ flex: 1 }}>{s.label}</span>
+                  <button className="dash-compare-chip" onClick={() => setActive({ id: s._id, active: true })}>Approve</button>
+                  <button className="dash-app-delete" onClick={() => removeSource({ id: s._id })}><TrashIcon width={14} height={14} /></button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         {sources && sources.length > 0 && (
-          <p className="dash-hero-sub" style={{ marginTop: 8 }}>{sources.filter((s: any) => s.active).length} active source(s).</p>
+          <>
+            <p className="dash-hero-sub" style={{ marginTop: 8 }}>{sources.filter((s: any) => s.active).length} active source(s), shared by everyone.</p>
+            <ul className="dash-docs-list">
+              {sources.map((s: any) => (
+                <li key={s._id} className="dash-doc-item">
+                  <CheckCircleIcon width={14} height={14} className="dash-doc-check" />
+                  <span style={{ flex: 1 }}>{s.label}{s.mine ? " · yours" : ""}</span>
+                  {(s.mine || !s.userId) && (
+                    <button className="dash-app-delete" onClick={async () => {
+                      try { await removeSource({ id: s._id }); }
+                      catch { toast("Only the person who added it can remove it."); }
+                    }}><TrashIcon width={14} height={14} /></button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </>
@@ -1823,7 +1892,11 @@ function InterviewPanel() {
 
 function RadarPanel() {
   const [kind, setKind] = useState<"" | "scholarship" | "job">("");
-  const list = useQuery(api.opportunities.list, kind ? { kind } : {});
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.opportunities.listPaged,
+    kind ? { kind } : {},
+    { initialNumItems: 8 }
+  );
   const seed = useMutation(api.opportunities.seedOpportunities);
   const remind = useMutation(api.opportunities.remindMe);
   const refresh = useAction(api.opportunities.refreshOne);
@@ -1844,14 +1917,15 @@ function RadarPanel() {
           ))}
         </div>
       </div>
-      {!list || list.length === 0 ? (
+      {!results || results.length === 0 ? (
         <div className="dash-section-card">
           <p className="dash-hero-sub">No opportunities loaded yet.</p>
           <button className="dash-compare-chip" style={{ marginTop: 8 }} onClick={() => seed({})}>Load opportunities</button>
         </div>
       ) : (
+        <>
         <div className="dash-apps-list">
-          {list.map((o: any) => (
+          {results.map((o: any) => (
             <div key={o._id} className="dash-app-card">
               <div className="dash-app-info">
                 <span className="dash-app-country">{o.title}</span>
@@ -1875,6 +1949,11 @@ function RadarPanel() {
             </div>
           ))}
         </div>
+        {status === "CanLoadMore" && (
+          <button className="dash-compare-chip" style={{ marginTop: 12 }} onClick={() => loadMore(8)}>Show more</button>
+        )}
+        {status === "LoadingMore" && <p className="dash-hero-sub" style={{ marginTop: 12 }}>Loading more...</p>}
+        </>
       )}
     </>
   );

@@ -168,6 +168,12 @@ seeded into opportunities (seed is now additive). AEWV added as a full visa type
 (checklist, guide, pills). tsc clean, 25/25 tests pass, build passes.
 
 ### 2026-09-04 - working tree
+Firecrawl finds its own sources: Discover button runs a web search for visa
+wait pages, new URLs land inactive for human review, Approve switches them on
+for the cron. Shared sources stay global with per-user ownership, 5-source cap,
+and owner-only delete. 30/30 tests pass, build passes.
+
+### 2026-09-04 - working tree
 Alerts finally fire for real: every timeline write goes through a shared
 recordTimeline helper, and on a real change all watchers get an in-app alert
 plus a scheduled email. Added a watchlist by_place index to reach watchers.
