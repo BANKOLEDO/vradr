@@ -146,3 +146,38 @@ tappable document chips with a ready count, a step-by-step process stepper, and
 qualify badges. Search filter pills grouped (Travel/Work/Study/Business/Transit/
 Family) with inline sub-pills (B1, B2, H-1B, L-1, O-1, F-1, J-1) that actually filter
 the grid and search via a new getTypeAverages query. 17/17 tests pass.
+
+### 2026-09-04 - working tree
+Prep tab: SOP Studio (OpenAI drafts from your details, editable, saved per user),
+mock interviews (officer questions, per-answer scores with model answers, saved
+sessions with averages), opportunity radar (12 seeded scholarships + work routes
+with deadlines, countdowns, reminders into alerts, Firecrawl recheck per listing),
+and Study/Work/Talent roadmaps as steppers with requirement chips. New tables:
+sops, interviewSessions, opportunities. OPENAI_BASE_URL + OPENAI_MODEL envs make
+the endpoint and model swappable (free-tier gateways for dev, official API for
+demo traffic). 25/25 tests pass, build passes.
+
+### 2026-09-04 - working tree
+Work-route intelligence beyond one country. NZ Work roadmap (AEWV 3-check flow,
+Green List tiers, Seek/TradeMe hunting, landing-week tasks) generalized to UK
+Work (Skilled Worker vs Global Talent), Canada Work (Express Entry vs LMIA),
+Australia Work, Germany Work (Blue Card vs Opportunity Card), and US Work
+(H-1B/O-1/L-1), each with steps, needs, scam warnings, and official source links
+rendered in the stepper. Green List Tier 1/2 roles plus Canada/Australia routes
+seeded into opportunities (seed is now additive). AEWV added as a full visa type
+(checklist, guide, pills). tsc clean, 25/25 tests pass, build passes.
+
+### 2026-09-04 - working tree
+Alerts finally fire for real: every timeline write goes through a shared
+recordTimeline helper, and on a real change all watchers get an in-app alert
+plus a scheduled email. Added a watchlist by_place index to reach watchers.
+Loading states: skeleton cards for the country grid and app list, 8s boot gate
+with retry. Concurrency stress test: 15 parallel signups with tracking, all
+isolated. tsc clean, 27/27 tests pass, build passes.
+
+### 2026-09-04 - working tree
+Email pivoted to the app's own service: one AgentMail inbox sends onboarding,
+alerts, and reminders for everyone instead of per-user inboxes (fits the free
+tier: 3 inboxes would cap us at 3 users). New users get a welcome email on
+signup via scheduler. Reads scoped to signed-in users, webhook idempotent,
+20/day send cap per sender. tsc clean, 27/27 tests pass, build passes.
