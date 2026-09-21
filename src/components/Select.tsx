@@ -22,8 +22,10 @@ export function Select({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   const [query, setQuery] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selected = options.find((o) => o.value === value);
@@ -34,8 +36,12 @@ export function Select({
   useEffect(() => {
     if (open) {
       setQuery("");
-      const raf = requestAnimationFrame(() => inputRef.current?.focus());
-      return () => cancelAnimationFrame(raf);
+      wrapRef.current?.scrollIntoView({ block: "nearest" });
+      // No autofocus on touch: the keyboard would cover the menu.
+      if (window.matchMedia("(pointer: fine)").matches) {
+        const raf = requestAnimationFrame(() => inputRef.current?.focus());
+        return () => cancelAnimationFrame(raf);
+      }
     }
   }, [open]);
 
@@ -59,8 +65,15 @@ export function Select({
     <div className={`dash-selectwrap ${className}`} ref={wrapRef}>
       <button
         type="button"
+        ref={btnRef}
         className={`dash-selectbtn ${open ? "open" : ""} ${value ? "" : "placeholder"}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          if (!open && btnRef.current) {
+            const r = btnRef.current.getBoundingClientRect();
+            setUp(window.innerHeight - r.bottom < 260);
+          }
+          setOpen((o) => !o);
+        }}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -69,7 +82,7 @@ export function Select({
         <ChevronDownIcon width={16} height={16} className={`dash-select-caret ${open ? "flip" : ""}`} />
       </button>
       {open && (
-        <div className="dash-selectmenu" role="listbox">
+        <div className={`dash-selectmenu${up ? " up" : ""}`} role="listbox">
           <div className="dash-select-search">
             <MagnifyingGlassIcon width={14} height={14} className="dash-select-search-ic" />
             <input

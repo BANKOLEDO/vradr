@@ -197,6 +197,9 @@ export default function Landing() {
               { num: "01", title: "One number, not a maze", desc: "Embassy sites hide processing times in PDFs and inbox queues. VRADR scrapes them nightly and reduces each one to a single number you can act on." },
               { num: "02", title: "The trend, not the snapshot", desc: "A wait time on its own is noise. VRADR keeps weeks of history so you see whether a date is improving, slipping, or about to move." },
               { num: "03", title: "Alerts before it matters", desc: "Attach your application and get the push the moment a window or deadline shifts. No more checking the same page every morning." },
+              { num: "04", title: "An SOP that sounds like you", desc: "Answer a few questions about your background, voice, and wins. VRADR drafts a personal statement in your words, then scores your edits like an officer would." },
+              { num: "05", title: "Rehearse the interview", desc: "Face real officer-style questions for your country and visa, get scored with model answers, and track your average across sessions." },
+              { num: "06", title: "Every route, one roadmap", desc: "Scholarships with deadlines, work routes from NZ to the US with scam warnings, and step-by-step roadmaps. Structured process, not scattered tabs." },
             ].map((item) => (
               <div key={item.num}>
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600, color: "var(--accent)", letterSpacing: "0.04em" }}>{item.num}</span>
