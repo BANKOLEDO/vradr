@@ -58,23 +58,29 @@ function backdate(daysAgo: number) {
 
 export const seed = mutation({
   args: { force: v.optional(v.boolean()) },
+  returns: v.string(),
   handler: async (ctx, args) => {
-    const existing = await ctx.db.query("visaTimelines").first();
-    if (existing && !args.force) return "already seeded";
-
-    // Optional hard reset so the dashboard can be reseeded cleanly with real
-    // chronological history after a schema/data change.
+    // Force clears seed rows only, never real scrapes.
     if (args.force) {
-      const all = await ctx.db.query("visaTimelines").collect();
-      for (const row of all) {
+      const seeded = await ctx.db.query("visaTimelines").filter((q) => q.eq(q.field("source"), "embassy")).collect();
+      for (const row of seeded) {
         await ctx.db.delete(row._id);
       }
     }
 
+    // Only backfill pairs missing entirely.
+    const have = new Set<string>();
+    for (const c of [...new Set(SEED_BASE.map((b) => b.country))]) {
+      const rows = await ctx.db.query("visaTimelines").withIndex("by_country", (q) => q.eq("country", c)).take(500);
+      for (const r of rows) have.add(`${r.country}::${r.visaType}`);
+    }
+
+    let added = 0;
+
     for (const base of SEED_BASE) {
+      if (have.has(`${base.country}::${base.visaType}`)) continue;
+      added++;
       for (let w = HISTORY_WEEKS - 1; w >= 0; w--) {
-        // Gentle, deterministic drift around the base so the history reads as
-        // a real but stable trend (never inventing volatility).
         const drift = Math.round((Math.sin(w + base.country.length) * 0.08) * base.waitDays);
         const waitDays = Math.max(1, base.waitDays + drift);
         await ctx.db.insert("visaTimelines", {
@@ -87,9 +93,9 @@ export const seed = mutation({
       }
     }
 
-    // Also store the "current" figure with today's timestamp so the latest
-    // daily average matches the headline number shown on the dashboard.
+    // Current figure with today's timestamp.
     for (const base of SEED_BASE) {
+      if (have.has(`${base.country}::${base.visaType}`)) continue;
       await ctx.db.insert("visaTimelines", {
         country: base.country,
         visaType: base.visaType,
@@ -99,11 +105,11 @@ export const seed = mutation({
       });
     }
 
-    return `seeded ${SEED_BASE.length} visa types x ${HISTORY_WEEKS} weeks`;
+    return `added ${added} pairs`;
   },
 });
 
-// Default Firecrawl feed sources (embassy wait-time pages).
+// Default feed sources.
 const FEED_SOURCES: { url: string; label: string; country: string; visaType: string }[] = [
   { url: "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/wait-times.html", label: "US wait times", country: "United States", visaType: "Tourist" },
   { url: "https://www.gov.uk/check-uk-visa", label: "UK visa checker", country: "United Kingdom", visaType: "Tourist" },
@@ -114,11 +120,13 @@ export const seedFeeds = mutation({
   args: {},
   returns: v.string(),
   handler: async (ctx) => {
-    const existing = await ctx.db.query("feedSources").first();
-    if (existing) return "feeds already seeded";
+    const have = new Set((await ctx.db.query("feedSources").take(100)).map((r) => r.url));
+    let added = 0;
     for (const s of FEED_SOURCES) {
+      if (have.has(s.url)) continue;
       await ctx.db.insert("feedSources", { ...s, active: true });
+      added++;
     }
-    return `seeded ${FEED_SOURCES.length} feed sources`;
+    return `added ${added} feed sources`;
   },
 });
