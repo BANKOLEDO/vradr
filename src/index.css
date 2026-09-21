@@ -2613,5 +2613,7 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: 500; 
 .prep-subbar { position: sticky; top: 72px; z-index: 60; }
   .dash-section-title .dash-swipe-hint { display: inline; }
 }
+.brandlogo { height: 24px; width: auto; display: block; flex-shrink: 0; }
+[data-theme="dark"] .brandlogo-invert { filter: invert(1); }
 .dash-swipe-hint { display: none; font-size: 11px; font-weight: 600; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,0.08); color: #1a1a1a; vertical-align: middle; }
 [data-theme="dark"] .dash-swipe-hint { background: rgba(255,255,255,0.16); color: #ffffff; }

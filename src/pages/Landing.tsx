@@ -246,6 +246,30 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Built with */}
+      <section className="dot-grid" style={{ padding: "64px 24px", background: "var(--bg)" }}>
+        <div style={{ maxWidth: 1020, margin: "0 auto" }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>Under the hood</p>
+          <h2 className="heading-lg" style={{ margin: "0 0 32px", textWrap: "balance" }}>Four engines doing real work</h2>
+          <div className="why-cols" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
+            {[
+              { name: "Convex", logo: "https://cdn.simpleicons.org/convex", desc: "Your data updates live on every device, instantly. No refresh button, no waiting." },
+              { name: "OpenAI", logo: "https://cdn.worldvectorlogo.com/logos/openai-2.svg", desc: "Wait predictions, SOP drafts in your voice, and interview practice with scores." },
+              { name: "Firecrawl", logo: "https://www.firecrawl.dev/favicon.ico", desc: "Embassy pages checked nightly, so every number is fresh, never stale." },
+              { name: "AgentMail", logo: "https://agentmail.to/favicon.ico", desc: "Welcome notes, deadline reminders, and wait alerts land in your email." },
+            ].map((s) => (
+              <div key={s.name} className="card" style={{ padding: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <img src={s.logo} alt={`${s.name} logo`} loading="lazy" className={s.name === "OpenAI" ? "brandlogo brandlogo-invert" : "brandlogo"} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: "var(--text)", margin: 0 }}>{s.name}</p>
+                </div>
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-muted)", margin: 0 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="dot-grid web-glow" style={{ padding: "8px 24px 64px", background: "var(--bg)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
