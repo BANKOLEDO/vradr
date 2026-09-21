@@ -3,10 +3,10 @@
 - **Project:** VRADR
 - **Event:** Convex All Gas Hackathon
 - **What it does:** Real-time global visa tracking dashboard with AI-powered wait time predictions, embassy scraping, smart alerts, app inbox, and per-visa application guides.
-- **Live app:** not deployed (run locally: `npx convex dev` + `pnpm dev`)
+- **Live app:** https://wry-buffalo-825.convex.site
 - **Demo:** none recorded yet
-- **Repo:** none
-- **Frontend:** Convex static hosting
+- **Repo:** https://github.com/BANKOLEDO/vradr
+- **Frontend:** https://wry-buffalo-825.convex.site
 - **Convex deployment:** local (`local:local-bankole_david-vradr_app`)
 - **Components:** none
 - **Convex features:** schema, queries, mutations, actions, indexes, crons, HTTP webhooks, auth
