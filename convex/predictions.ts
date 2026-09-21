@@ -1,7 +1,8 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
+import { cleanAIText } from "./studio";
 
-const OPENAI_API = "https://api.openai.com/v1";
+const OPENAI_API = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
 
 export const predictWaitTime = action({
   args: {
@@ -43,7 +44,7 @@ Respond with JSON only: { "predictedDays": number, "confidence": "low"|"medium"|
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.3,
         response_format: { type: "json_object" },
@@ -53,6 +54,8 @@ Respond with JSON only: { "predictedDays": number, "confidence": "low"|"medium"|
     if (!res.ok) throw new Error(`OpenAI error: ${res.status}`);
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content ?? "{}";
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    if (typeof parsed.reasoning === "string") parsed.reasoning = cleanAIText(parsed.reasoning);
+    return parsed;
   },
 });

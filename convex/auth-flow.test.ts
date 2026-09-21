@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { describe, it, expect } from "vitest";
 
 const modules = import.meta.glob("./**/*.ts");
@@ -89,6 +89,24 @@ describe("VRADR auth + personalization flow", () => {
     const asUser = t.withIdentity({ subject: "nobody-profile" });
     const profile = await asUser.query(api.users.getProfile);
     expect(profile).toBeNull();
+  });
+
+  it("alerts watchers when a scraped wait changes", async () => {
+    const t = convexTest(schema, modules);
+    const uid = await t.run(async (ctx) => {
+      const id = await ctx.db.insert("users", { userId: "watcher", email: "w@x.com", createdAt: new Date().toISOString() });
+      await ctx.db.insert("watchlist", { userId: id, country: "Canada", visaType: "Tourist" });
+      return id;
+    });
+    await t.mutation(internal.cronActions.insertResult, { country: "Canada", visaType: "Tourist", waitDays: 18, sourceUrl: "https://x" });
+    await t.mutation(internal.cronActions.insertResult, { country: "Canada", visaType: "Tourist", waitDays: 18, sourceUrl: "https://x" });
+    let alerts = await t.run(async (ctx) => await ctx.db.query("alerts").collect());
+    expect(alerts).toHaveLength(0);
+    await t.mutation(internal.cronActions.insertResult, { country: "Canada", visaType: "Tourist", waitDays: 25, sourceUrl: "https://x" });
+    alerts = await t.run(async (ctx) => await ctx.db.query("alerts").collect());
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0].userId).toBe(uid);
+    expect(alerts[0].message).toMatch("rose from 18 to 25");
   });
 
   it("returns live waits for tracked applications", async () => {
