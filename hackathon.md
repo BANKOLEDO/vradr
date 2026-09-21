@@ -13,7 +13,7 @@
 - **Auth:** Convex Auth (Password provider)
 - **AI models:** gpt-4o-mini (wait-time prediction wired into country detail)
 - **Data feed:** Firecrawl v2 scrape API (feed sources + 12h cron + manual scrape)
-- **Inbox:** AgentMail REST + message.received webhook (inbox tab, compose, thread view, wait-time email alerts)
+- **Inbox:** AgentMail REST for outbound onboarding, alert, and reminder emails (no user inboxes)
 - **Started:** 2026-08-26T09:56:00Z
 - **Last updated:** 2026-09-04T02:00:00Z
 ## Log
@@ -181,3 +181,14 @@ alerts, and reminders for everyone instead of per-user inboxes (fits the free
 tier: 3 inboxes would cap us at 3 users). New users get a welcome email on
 signup via scheduler. Reads scoped to signed-in users, webhook idempotent,
 20/day send cap per sender. tsc clean, 27/27 tests pass, build passes.
+
+### 2026-09-04 - working tree
+Convex hosting wired via @convex-dev/static-hosting: component registered,
+static routes with SPA fallback in http.ts, frontend auto-connects
+(VITE_CONVEX_URL or the hosting deployment's backend), `pnpm deploy:live`
+ships everything to .convex.site. tsc clean, 28/28 tests pass, build passes.
+
+### 2026-09-04 - working tree
+Inbox fully retired: no user inboxes, no compose, no webhook, no emails table.
+AgentMail is outbound-only (welcome, reminders, wait alerts from the app's own
+address). Docs and env cleaned to match. tsc clean, build passes.

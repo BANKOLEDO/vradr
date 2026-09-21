@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "convex:dev": "npx convex dev",
+    "deploy:live": "npx @convex-dev/static-hosting deploy",
     "test": "vitest run",
     "start": "pnpm dev"
   },
@@ -19,6 +20,7 @@
   "dependencies": {
     "@auth/core": "0.41.1",
     "@convex-dev/auth": "^0.0.95",
+    "@convex-dev/static-hosting": "^0.2.1",
     "@heroicons/react": "^2.2.0",
     "agentmail-sdk": "^1.1.0",
     "convex": "^1.45.0",
