@@ -85,6 +85,28 @@ describe("opportunity radar", () => {
     expect(await t.query(api.opportunities.list, { country: "Japan" })).toHaveLength(1);
   });
 
+  it("pages opportunities and enforces source ownership", async () => {
+    const t = convexTest(schema, modules);
+    await t.mutation(api.opportunities.seedOpportunities, {});
+    const first = await t.query(api.opportunities.listPaged, { paginationOpts: { numItems: 5, cursor: null } });
+    expect(first.page.length).toBe(5);
+    expect(first.isDone).toBe(false);
+    const rest = await t.query(api.opportunities.listPaged, { paginationOpts: { numItems: 50, cursor: first.continueCursor } });
+    expect(rest.isDone).toBe(true);
+
+    const a = t.withIdentity({ subject: "owner-a" });
+    const b = t.withIdentity({ subject: "owner-b" });
+    for (let i = 0; i < 5; i++) {
+      await a.mutation(api.feeds.addSource, { url: `https://a${i}.com`, label: `A${i}` });
+    }
+    await expect(a.mutation(api.feeds.addSource, { url: "https://a5.com", label: "A5" })).rejects.toThrow("Source limit");
+    const added = await b.mutation(api.feeds.addSource, { url: "https://b0.com", label: "B0" });
+    await expect(b.mutation(api.feeds.removeSource, { id: added })).resolves.toBeNull();
+    const c = t.withIdentity({ subject: "owner-c" });
+    const own = await c.mutation(api.feeds.addSource, { url: "https://mine.com", label: "Mine" });
+    await expect(b.mutation(api.feeds.removeSource, { id: own })).rejects.toThrow("Only the person");
+  });
+
   it("saves deadline reminders and guards refresh", async () => {
     const t = convexTest(schema, modules);
     await t.mutation(api.opportunities.seedOpportunities, {});

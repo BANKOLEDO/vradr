@@ -2,7 +2,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { cleanAIText } from "./studio";
 
-const OPENAI_API = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+const OPENAI_API = (process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
 
 export const predictWaitTime = action({
   args: {

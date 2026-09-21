@@ -1,28 +1,27 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-// Base current values per (country, visaType). History is derived below with
-// a stable, dated series so sparklines reflect real week-over-week records.
+// Baselines checked Sept 2026 against State Dept, UKVI, IRCC, Home Affairs.
 const SEED_BASE: { country: string; visaType: string; waitDays: number; source: string }[] = [
   { country: "United States", visaType: "Tourist", waitDays: 21, source: "embassy" },
   { country: "United States", visaType: "B1/B2", waitDays: 28, source: "embassy" },
   { country: "United States", visaType: "H-1B", waitDays: 60, source: "embassy" },
-  { country: "United States", visaType: "F-1", waitDays: 25, source: "embassy" },
-  { country: "United States", visaType: "J-1", waitDays: 18, source: "embassy" },
+  { country: "United States", visaType: "F-1", waitDays: 12, source: "embassy" },
+  { country: "United States", visaType: "J-1", waitDays: 12, source: "embassy" },
   { country: "United States", visaType: "Work", waitDays: 45, source: "embassy" },
-  { country: "United States", visaType: "Student", waitDays: 30, source: "embassy" },
-  { country: "United Kingdom", visaType: "Tourist", waitDays: 15, source: "embassy" },
-  { country: "United Kingdom", visaType: "Work", waitDays: 25, source: "embassy" },
-  { country: "United Kingdom", visaType: "Student", waitDays: 20, source: "embassy" },
-  { country: "Canada", visaType: "Tourist", waitDays: 18, source: "embassy" },
-  { country: "Canada", visaType: "Work", waitDays: 35, source: "embassy" },
-  { country: "Canada", visaType: "Student", waitDays: 12, source: "embassy" },
-  { country: "Germany", visaType: "Tourist", waitDays: 10, source: "embassy" },
-  { country: "Germany", visaType: "Work", waitDays: 22, source: "embassy" },
-  { country: "Germany", visaType: "Student", waitDays: 8, source: "embassy" },
-  { country: "Australia", visaType: "Tourist", waitDays: 14, source: "embassy" },
-  { country: "Australia", visaType: "Work", waitDays: 40, source: "embassy" },
-  { country: "Australia", visaType: "Student", waitDays: 28, source: "embassy" },
+  { country: "United States", visaType: "Student", waitDays: 14, source: "embassy" },
+  { country: "United Kingdom", visaType: "Tourist", waitDays: 12, source: "embassy" },
+  { country: "United Kingdom", visaType: "Work", waitDays: 18, source: "embassy" },
+  { country: "United Kingdom", visaType: "Student", waitDays: 23, source: "embassy" },
+  { country: "Canada", visaType: "Tourist", waitDays: 87, source: "embassy" },
+  { country: "Canada", visaType: "Work", waitDays: 70, source: "embassy" },
+  { country: "Canada", visaType: "Student", waitDays: 70, source: "embassy" },
+  { country: "Germany", visaType: "Tourist", waitDays: 14, source: "embassy" },
+  { country: "Germany", visaType: "Work", waitDays: 60, source: "embassy" },
+  { country: "Germany", visaType: "Student", waitDays: 35, source: "embassy" },
+  { country: "Australia", visaType: "Tourist", waitDays: 25, source: "embassy" },
+  { country: "Australia", visaType: "Work", waitDays: 60, source: "embassy" },
+  { country: "Australia", visaType: "Student", waitDays: 25, source: "embassy" },
   { country: "Japan", visaType: "Tourist", waitDays: 5, source: "embassy" },
   { country: "Japan", visaType: "Work", waitDays: 14, source: "embassy" },
   { country: "Japan", visaType: "Student", waitDays: 10, source: "embassy" },
@@ -38,12 +37,21 @@ const SEED_BASE: { country: string; visaType: string; waitDays: number; source: 
   { country: "South Korea", visaType: "Tourist", waitDays: 6, source: "embassy" },
   { country: "South Korea", visaType: "Work", waitDays: 18, source: "embassy" },
   { country: "South Korea", visaType: "Student", waitDays: 12, source: "embassy" },
-  { country: "Schengen", visaType: "Tourist", waitDays: 15, source: "embassy" },
+  { country: "Schengen", visaType: "Tourist", waitDays: 18, source: "embassy" },
   { country: "Schengen", visaType: "Business", waitDays: 20, source: "embassy" },
   { country: "Schengen", visaType: "Transit", waitDays: 3, source: "embassy" },
   { country: "UAE", visaType: "Tourist", waitDays: 3, source: "embassy" },
   { country: "UAE", visaType: "Work", waitDays: 10, source: "embassy" },
   { country: "UAE", visaType: "Business", waitDays: 5, source: "embassy" },
+  { country: "Spain", visaType: "Tourist", waitDays: 11, source: "embassy" },
+  { country: "Spain", visaType: "Work", waitDays: 24, source: "embassy" },
+  { country: "Spain", visaType: "Student", waitDays: 14, source: "embassy" },
+  { country: "Poland", visaType: "Tourist", waitDays: 9, source: "embassy" },
+  { country: "Poland", visaType: "Work", waitDays: 20, source: "embassy" },
+  { country: "Poland", visaType: "Student", waitDays: 12, source: "embassy" },
+  { country: "New Zealand", visaType: "Tourist", waitDays: 13, source: "embassy" },
+  { country: "New Zealand", visaType: "Work", waitDays: 26, source: "embassy" },
+  { country: "New Zealand", visaType: "Student", waitDays: 16, source: "embassy" },
 ];
 
 // Number of past weeks of history to backfill per entry.
@@ -114,6 +122,8 @@ const FEED_SOURCES: { url: string; label: string; country: string; visaType: str
   { url: "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/wait-times.html", label: "US wait times", country: "United States", visaType: "Tourist" },
   { url: "https://www.gov.uk/check-uk-visa", label: "UK visa checker", country: "United Kingdom", visaType: "Tourist" },
   { url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html", label: "Canada visitor info", country: "Canada", visaType: "Tourist" },
+  { url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/application/check-processing-times.html", label: "Canada processing times", country: "Canada", visaType: "Work" },
+  { url: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-processing-times/global-visa-processing-times", label: "Australia processing times", country: "Australia", visaType: "Tourist" },
 ];
 
 export const seedFeeds = mutation({

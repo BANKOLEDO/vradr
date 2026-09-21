@@ -37,6 +37,7 @@ export default defineSchema({
     email: v.string(),
     country: v.optional(v.string()),
     name: v.optional(v.string()),
+    welcomed: v.optional(v.boolean()),
     createdAt: v.string(),
   })
     .index("by_userId", ["userId"])
@@ -56,7 +57,10 @@ export default defineSchema({
     country: v.optional(v.string()),
     visaType: v.optional(v.string()),
     active: v.boolean(),
-  }).index("by_active", ["active"]),
+    userId: v.optional(v.string()),
+  })
+    .index("by_active", ["active"])
+    .index("by_user", ["userId"]),
 
   scrapedPages: defineTable({
     url: v.string(),

@@ -1,6 +1,7 @@
 import { action, internalMutation, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 const oppValidator = v.object({
@@ -57,6 +58,18 @@ export const list = query({
       rows = await ctx.db.query("opportunities").take(50);
     }
     return rows;
+  },
+});
+
+export const listPaged = query({
+  args: { kind: v.optional(v.union(v.literal("scholarship"), v.literal("job"))), paginationOpts: paginationOptsValidator },
+  returns: v.object({ page: v.array(oppValidator), isDone: v.boolean(), continueCursor: v.string() }),
+  handler: async (ctx, args) => {
+    const base = args.kind
+      ? ctx.db.query("opportunities").withIndex("by_kind", (q) => q.eq("kind", args.kind as "scholarship" | "job"))
+      : ctx.db.query("opportunities");
+    const r = await base.order("desc").paginate(args.paginationOpts);
+    return { page: r.page, isDone: r.isDone, continueCursor: r.continueCursor };
   },
 });
 

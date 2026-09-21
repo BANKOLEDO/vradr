@@ -2,7 +2,7 @@ import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-const OPENAI_API = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+const OPENAI_API = (process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
 
 function openAIKey(): string {
   const key = process.env.OPENAI_API_KEY;
