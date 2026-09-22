@@ -15,7 +15,7 @@
 - **Data feed:** Firecrawl v2 scrape API (feed sources + 12h cron + manual scrape)
 - **Inbox:** AgentMail REST for outbound onboarding, alert, and reminder emails (no user inboxes)
 - **Started:** 2026-08-26T09:56:00Z
-- **Last updated:** 2026-09-04T02:00:00Z
+- **Last updated:** 2026-09-22T00:31:00Z
 ## Log
 
 ### 2026-08-26 - working tree
