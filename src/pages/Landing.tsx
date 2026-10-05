@@ -385,6 +385,11 @@ export default function Landing() {
             Back to top <ArrowUpRightIcon width={13} height={13} />
           </a>
         </div>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px 26px" }}>
+          <a href="https://devolabanks.xyz" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(237,236,231,0.45)", fontSize: 13, textDecoration: "underline", textUnderlineOffset: 4 }}>
+            Built by Bankole David · devolabanks.xyz
+          </a>
+        </div>
       </footer>
     </div>
   );
