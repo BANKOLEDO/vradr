@@ -4,7 +4,7 @@
 - **Event:** Convex All Gas Hackathon
 - **What it does:** Real-time global visa tracking dashboard with AI-powered wait time predictions, embassy scraping, smart alerts, app inbox, and per-visa application guides.
 - **Live app:** https://wry-buffalo-825.convex.site
-- **Demo:** none recorded yet
+- **Demo:** https://youtu.be/KIwdar-66xs?si=MPxRsYadxFh0bxeq
 - **Repo:** https://github.com/BANKOLEDO/vradr
 - **Frontend:** https://wry-buffalo-825.convex.site
 - **Convex deployment:** local (`local:local-bankole_david-vradr_app`)
