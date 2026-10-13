@@ -24,41 +24,30 @@ export function Navbar({ variant = "landing", right }: NavbarProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isLanding = variant === "landing";
-  const overDark = isLanding && !scrolled && theme === "dark";
-  const collapsed = scrolled;
-
   return (
-    <div className={`nav-shell${collapsed ? " collapsed" : ""}`} style={{
+    <div style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      transition: "padding 400ms cubic-bezier(0.4, 0, 0.2, 1)",
+      background: "var(--bg)",
+      borderBottom: "1px solid var(--border)",
     }}>
-      <div style={{
-        maxWidth: collapsed ? 680 : 1200,
-        margin: "0 auto",
-        padding: "16px 0 0",
-        transition: "max-width 400ms cubic-bezier(0.4, 0, 0.2, 1)",
-      }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
         <nav style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "10px 20px", borderRadius: 999,
-          border: collapsed ? "1px solid var(--border)" : "1px solid transparent",
-          background: collapsed ? "var(--bg-card)" : "transparent",
-          backdropFilter: collapsed ? "blur(12px)" : "none",
-          transition: "all 400ms cubic-bezier(0.4, 0, 0.2, 1)",
+          padding: scrolled ? "8px 0" : "12px 0",
+          transition: "padding 200ms ease",
         }}>
           <Link to="/" aria-label="VRADR home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             <BrandMark size={28} />
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: overDark ? "#fff" : "var(--text)" }}>VRADR</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, textTransform: "uppercase", letterSpacing: "-0.02em", color: "var(--text)" }}>VRADR</span>
           </Link>
 
           <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {right ?? (
               <>
-                <ThemeToggle light={overDark} />
+                <ThemeToggle light={theme === "dark"} />
                 {variant !== "dashboard" && (
-                  <Link to="/dashboard" className="btn btn-primary" style={overDark ? { background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", minHeight: 36 } : undefined}>
-                    Get Started <ArrowRightIcon width={14} height={14} />
+                  <Link to="/dashboard" className="btn btn-primary">
+                    See live wait times <ArrowRightIcon width={14} height={14} />
                   </Link>
                 )}
               </>
