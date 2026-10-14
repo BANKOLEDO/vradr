@@ -40,18 +40,17 @@ export function Toast() {
       maxWidth: 420,
       width: "calc(100% - 32px)",
       padding: "12px 16px",
-      borderRadius: 12,
-      background: "var(--bg-card)",
-      border: "1px solid var(--border)",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+      borderRadius: 3,
+      background: "var(--ink)",
+      border: "1px solid var(--ink)",
       display: "flex",
       alignItems: "center",
       gap: 10,
-      animation: "toast-in 300ms ease",
+      animation: "toast-in 240ms ease",
     }}>
-      <ExclamationCircleIcon width={18} height={18} color="#dc2626" style={{ flexShrink: 0 }} />
-      <span style={{ flex: 1, fontSize: 14, color: "var(--text)", lineHeight: 1.4 }}>{msg}</span>
-      <button onClick={() => setVisible(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 2, display: "flex", flexShrink: 0 }}>
+      <ExclamationCircleIcon width={18} height={18} color="var(--accent-2)" style={{ flexShrink: 0 }} />
+      <span style={{ flex: 1, fontSize: 14, color: "var(--paper-inv)", lineHeight: 1.4 }}>{msg}</span>
+      <button onClick={() => setVisible(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--on-ink-dim)", padding: 2, display: "flex", flexShrink: 0 }}>
         <XMarkIcon width={16} height={16} />
       </button>
     </div>
