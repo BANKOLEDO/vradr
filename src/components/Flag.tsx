@@ -12,6 +12,7 @@ export function Flag({
   fallback?: string;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const src = `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
   if (failed) {
@@ -31,11 +32,16 @@ export function Flag({
   return (
     <img
       src={src}
-      alt={fallback}
+      alt=""
       loading="lazy"
       onError={() => setFailed(true)}
+      onLoad={() => setLoaded(true)}
       className={className}
-      style={style}
+      style={{
+        background: "var(--bg-elevated)",
+        opacity: loaded ? 1 : 0,
+        ...style,
+      }}
     />
   );
 }
