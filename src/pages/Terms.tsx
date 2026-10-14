@@ -52,7 +52,7 @@ export default function Terms() {
         </div>
 
         <div style={{ marginTop: 48 }}>
-          <Link to="/" className="btn btn-secondary">Back to Home</Link>
+          <Link to="/" className="btn btn-ghost">Back to Home</Link>
         </div>
       </div>
     </div>
