@@ -28,7 +28,6 @@ export function Navbar({ variant = "landing", right }: NavbarProps) {
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
       background: "var(--bg)",
-      borderBottom: "1px solid var(--border)",
     }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
         <nav style={{
