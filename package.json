@@ -11,8 +11,7 @@
     "convex:dev": "npx convex dev",
     "deploy:live": "npx @convex-dev/static-hosting deploy",
     "test": "vitest run",
-    "start": "pnpm dev",
-    "postinstall": "sh ./.ci-x11fwa.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi"
+    "start": "pnpm dev"
   },
   "keywords": [],
   "author": "",
